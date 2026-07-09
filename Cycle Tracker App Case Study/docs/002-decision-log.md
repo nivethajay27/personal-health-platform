@@ -36,6 +36,62 @@ YYYY-MM-DD
 
 ### Decision
 
+Make daily check-ins and logging lightweight.
+
+### Options Considered
+
+- Long detailed forms
+- Fully automated tracking
+- Quick manual logging with visual controls
+
+### Final Choice
+
+Use sliders, chips, toggles, icons, and short notes for daily check-ins, food logs, and workout logs.
+
+### Why This Matters
+
+Daily tracking only works if it feels easy. A quick and beautiful logging experience makes the app more likely to become a habit.
+
+### Tradeoffs
+
+Lightweight logging captures less detail than advanced calorie, macro, or training platforms, but it keeps the app focused on patterns instead of dieting or over-optimization.
+
+### Date
+
+2026-07-09
+
+---
+
+### Decision
+
+Build a flexible, user-controlled cycle engine.
+
+### Options Considered
+
+- Fixed 28-day cycle model
+- Automatic prediction only
+- Manual period entry with customizable estimates and overrides
+
+### Final Choice
+
+Use manually entered period start dates as the base input, allow custom cycle and period lengths, support manual phase overrides, and show irregular cycles with flexible ranges and uncertainty labels.
+
+### Why This Matters
+
+Users know their bodies better than the app. Flexible estimates make the cycle engine more accurate, honest, and trustworthy.
+
+### Tradeoffs
+
+Manual entry and overrides add setup and data-model complexity, but they avoid pretending cycle predictions are perfectly certain.
+
+### Date
+
+2026-07-09
+
+---
+
+### Decision
+
 Present the project as a layered portfolio case study.
 
 ### Options Considered

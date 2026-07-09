@@ -67,6 +67,14 @@ Why this matters:
 
 If the logic is separate, the future mobile app can reuse it.
 
+### Make Cycle Estimates User-Controlled
+
+The cycle engine should use manual period start dates as its base input, support custom cycle and period lengths, allow phase overrides, and represent irregular cycles with ranges or soft labels.
+
+Why this matters:
+
+Cycle predictions are useful, but they are not guaranteed. User corrections and uncertainty labels make the app more trustworthy and inclusive.
+
 ### Start Local-First
 
 Store data on the user's device first.

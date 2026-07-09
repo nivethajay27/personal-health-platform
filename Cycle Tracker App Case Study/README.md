@@ -68,10 +68,15 @@ Recommended future mobile stack:
 - SQLite
 - SecureStore
 
-## Case Study Sections
+## Supporting Docs
 
-- [Build Stages](./build-stages.md)
-- [Decision Log](./decision-log.md)
-- [Design Direction](./design-direction.md)
-- [Technical Architecture](./technical-architecture.md)
-- [Privacy Strategy](./privacy-strategy.md)
+- [001 Build Stages](./docs/001-build-stages.md)
+- [002 Decision Log](./docs/002-decision-log.md)
+- [003 Design Direction](./docs/003-design-direction.md)
+- [004 Privacy-First Data](./docs/004-privacy-first-data.md)
+- [005 Web-First, Mobile-Ready](./docs/005-web-first-mobile-ready.md)
+- [006 Dashboard As Home](./docs/006-dashboard-as-home.md)
+- [007 Cycle Phase Visualization](./docs/007-cycle-phase-visualization.md)
+- [008 Insight Engine](./docs/008-insight-engine.md)
+- [009 Technical Architecture](./docs/009-technical-architecture.md)
+- [010 Architecture Diagram](./docs/010-architecture-diagram.md)

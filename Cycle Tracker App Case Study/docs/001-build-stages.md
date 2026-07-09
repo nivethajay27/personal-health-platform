@@ -152,23 +152,27 @@ The dashboard is the app's first impression. It should show the value of the pro
 
 ## Stage 7: Cycle Engine
 
-Build the logic that estimates cycle phase.
+Build the logic that estimates a user's current cycle phase while allowing flexibility for different cycle patterns.
 
-Decisions to make:
+Decisions:
 
-- How users enter period start dates
-- Whether users can customize average cycle length
-- Whether users can override estimated phases
-- How irregular cycles are handled
-- How much uncertainty the UI should show
+- Users enter the first day of their period manually through a calendar or quick log button.
+- Users can customize average cycle length and period length.
+- Users can override estimated phases manually.
+- Irregular cycles should be supported with flexible ranges instead of only exact dates.
+- The UI should show uncertainty with soft labels like "estimated," "likely," or date ranges.
 
 Why this matters:
 
 The app should not assume every user has the same cycle. Flexible cycle logic makes the app more realistic and respectful.
 
+Result:
+
+The cycle engine should support standard cycles, irregular cycles, manual corrections, and transparent predictions without presenting estimates as medical certainty.
+
 ## Stage 8: Daily Check-In
 
-Build the daily tracking flow.
+Build the daily logging experience.
 
 Inputs to include:
 
@@ -181,9 +185,21 @@ Inputs to include:
 - Soreness
 - Notes
 
+Design decision:
+
+Make the daily check-in quick and beautiful, not a giant form.
+
+Use:
+
+- Sliders
+- Chips
+- Toggles
+- Icons
+- Short notes
+
 Why this matters:
 
-Daily logging is the main habit loop. It needs to feel fast and pleasant, not like paperwork.
+Daily logging is the main habit loop. Tracking apps fail when logging feels annoying, so the check-in should feel fast and pleasant rather than like paperwork.
 
 ## Stage 9: Food, Workout, And Recovery Logs
 
@@ -192,12 +208,12 @@ Build lightweight logs that support pattern discovery.
 Food decisions:
 
 - Avoid calorie counting at first
-- Track meal type, protein, fiber, hydration, cravings, and notes
+- Track meal type, protein/fiber/hydration estimates, cravings, nutrient focus, and notes
 - Focus on nourishment and patterns
 
 Workout decisions:
 
-- Track type, duration, intensity, perceived effort, and recovery afterward
+- Track type, duration, intensity, perceived effort, cycle phase, and recovery afterward
 - Connect workouts to cycle phase
 
 Recovery decisions:
@@ -206,7 +222,7 @@ Recovery decisions:
 
 Why this matters:
 
-The product is about understanding patterns, not dieting or over-optimizing.
+The product is about understanding patterns, not dieting. That distinction makes the product feel healthier and more thoughtful.
 
 ## Stage 10: Visualizations
 
