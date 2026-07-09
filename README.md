@@ -1,8 +1,8 @@
 # Cycle-Aware Fitness + Food Companion
 
-A privacy-first wellness dashboard that helps users understand relationships between cycle phases, food, workouts, energy, symptoms, and recovery.
+A  wellness dashboard that helps users understand relationships between cycle phases, food, workouts, energy, symptoms, and recovery.
 
-This project is being built as a technical portfolio case study. The goal is not to create a generic period tracker. The goal is to show how sensitive health-adjacent data can be modeled, visualized, and turned into responsible pattern-based insights through a polished web app.
+The goal is not to create a generic period tracker. The goal is to show how sensitive health-adjacent data can be modeled, visualized, and turned into responsible pattern-based insights through a polished web app.
 
 ## Product Focus
 
