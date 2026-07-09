@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --app-primary: #7faf8a;
+  --app-secondary: #b9a7d5;
+  --app-background: #fcfbf8;
+  --app-surface: #ffffff;
+  --app-warm-cream: #faf8f4;
+  --app-soft-stone: #e8e4de;
+  --app-primary-text: #2d2d2d;
+  --app-secondary-text: #727272;
+
+  --app-phase-menstrual: #d97b87;
+  --app-phase-follicular: #a6d7a7;
+  --app-phase-ovulation: #f4d77a;
+  --app-phase-luteal: #c6b8e8;
+
+  --app-radius-card: 20px;
+  --app-radius-button: 18px;
+  --app-shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.05);
+  --app-button-height: 52px;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-primary: var(--app-primary);
+  --color-secondary: var(--app-secondary);
+  --color-background: var(--app-background);
+  --color-surface: var(--app-surface);
+  --color-warm-cream: var(--app-warm-cream);
+  --color-soft-stone: var(--app-soft-stone);
+  --color-primary-text: var(--app-primary-text);
+  --color-secondary-text: var(--app-secondary-text);
+  --color-phase-menstrual: var(--app-phase-menstrual);
+  --color-phase-follicular: var(--app-phase-follicular);
+  --color-phase-ovulation: var(--app-phase-ovulation);
+  --color-phase-luteal: var(--app-phase-luteal);
+
+  --radius-card: var(--app-radius-card);
+  --radius-button: var(--app-radius-button);
+  --shadow-soft: var(--app-shadow-soft);
+  --spacing-button: var(--app-button-height);
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-dm-sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+body {
+  background: var(--app-background);
+  color: var(--app-primary-text);
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+.font-sans {
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+.font-heading {
+  font-family: var(--font-dm-sans), var(--font-inter), Arial, Helvetica,
+    sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-dm-sans), var(--font-inter), Arial, Helvetica,
+    sans-serif;
+  letter-spacing: 0;
+}
