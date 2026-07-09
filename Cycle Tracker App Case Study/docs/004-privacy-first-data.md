@@ -22,6 +22,12 @@ For web:
 - IndexedDB for user logs
 - localStorage only for harmless preferences
 
+Current implementation note:
+
+- Local database name: `cycle-companion-local`
+- First IndexedDB stores: profile, cycles, cycle days, daily check-ins, symptoms, meals, workouts, recovery logs, insights, and privacy settings.
+- Demo data remains separate from local user data.
+
 For future mobile:
 
 - SQLite for logs

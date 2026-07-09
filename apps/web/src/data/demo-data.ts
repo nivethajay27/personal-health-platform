@@ -4,7 +4,6 @@ import type {
   CycleDay,
   CyclePhase,
   DailyCheckIn,
-  Insight,
   IntensityLevel,
   MealLog,
   MealType,
@@ -18,6 +17,7 @@ import type {
   WorkoutLog,
   WorkoutType,
 } from "@/domain";
+import { buildRuleBasedInsights } from "@/core";
 
 const DEMO_USER_ID = "user_demo_001";
 const DEMO_NOW = "2026-07-09T09:00:00.000Z";
@@ -289,50 +289,16 @@ export const demoSymptoms: SymptomLog[] = demoCycleDays.flatMap((day) =>
   })),
 );
 
-export const demoInsights: Insight[] = [
-  {
-    id: "insight_cycle_energy_peak",
-    userId: DEMO_USER_ID,
-    title: "Energy is highest near ovulation",
-    message:
-      "Your logs show energy and workout intensity trending higher around days 14-16.",
-    category: "cycle",
-    priority: "medium",
-    sources: ["cycle", "daily_check_in", "workouts"],
-    relatedPhase: "ovulatory",
-    trendDirection: "up",
-    dateRange: { start: "2026-04-17", end: "2026-07-09" },
-    generatedAt: DEMO_NOW,
-  },
-  {
-    id: "insight_luteal_cravings",
-    userId: DEMO_USER_ID,
-    title: "Cravings increase during luteal days",
-    message:
-      "Cravings appear more often in late luteal logs alongside lower sleep and energy.",
-    category: "nutrition",
-    priority: "high",
-    sources: ["cycle", "daily_check_in", "meals"],
-    relatedPhase: "luteal",
-    trendDirection: "up",
-    dateRange: { start: "2026-04-17", end: "2026-07-09" },
-    generatedAt: DEMO_NOW,
-  },
-  {
-    id: "insight_gentle_movement",
-    userId: DEMO_USER_ID,
-    title: "Gentle movement supports low-energy days",
-    message:
-      "Walking, yoga, and rest days appear more often when fatigue is higher.",
-    category: "workout",
-    priority: "medium",
-    sources: ["daily_check_in", "workouts", "recovery"],
-    relatedPhase: "menstrual",
-    trendDirection: "stable",
-    dateRange: { start: "2026-04-17", end: "2026-07-09" },
-    generatedAt: DEMO_NOW,
-  },
-];
+export const demoInsights = buildRuleBasedInsights({
+  cycleDays: demoCycleDays,
+  dailyCheckIns: demoDailyCheckIns,
+  generatedAt: DEMO_NOW,
+  meals: demoMeals,
+  recoveryLogs: demoRecoveryLogs,
+  symptoms: demoSymptoms,
+  userId: DEMO_USER_ID,
+  workouts: demoWorkouts,
+});
 
 export const demoDataset = {
   user: demoUser,

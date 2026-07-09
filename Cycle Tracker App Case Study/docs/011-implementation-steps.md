@@ -114,3 +114,18 @@ This file tracks the actual build steps in a simple, concise way.
 - Added energy trend, workout intensity by phase, and symptom heatmap visuals.
 - Kept charts inside a focused client component.
 - Reason: visualizations make the app feel analytical and portfolio-ready without overbuilding the insight engine yet.
+
+## Step 17: Add Rule-Based Insight Engine
+
+- Added a pure insight engine under `src/core/insights`.
+- Generated insights from cycle, check-in, meal, workout, symptom, and recovery demo data.
+- Used cautious language like "appears" and "shows up often."
+- Reason: insights should feel useful and technical without making medical claims.
+
+## Step 18: Add Local-First Storage Layer
+
+- Added an IndexedDB wrapper under `src/storage`.
+- Created stores for profile, cycles, check-ins, symptoms, meals, workouts, recovery, insights, and privacy settings.
+- Added typed save/get/clear helpers.
+- Kept storage separate from demo data and dashboard UI for now.
+- Reason: privacy-first user data should stay local before any cloud sync is considered.

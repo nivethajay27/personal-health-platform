@@ -134,7 +134,7 @@ export function DashboardShell() {
 
         <Card>
           <SectionHeader
-            description="These are rule-based demo insights. Later, this section can become a richer insight engine."
+            description="Generated from rule checks across cycle, food, workout, symptom, and recovery demo data."
             eyebrow="Patterns"
             title="Personalized insights"
           />
