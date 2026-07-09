@@ -16,6 +16,24 @@ Build a polished product that shows prospective employers:
 - Clear technical documentation
 - A realistic path from web app to mobile app
 
+## Case Study Presentation 
+
+Portfolio case study:
+
+- Polished, visual, and readable in 3-5 minutes.
+- Focused on the product story, major decisions, tradeoffs, screens, and outcomes.
+
+GitHub README:
+
+- Technical overview, architecture, setup, and major engineering decisions.
+- Written for reviewers who want to understand how the project works.
+
+Decision docs:
+
+- Deeper notes that prove the thinking behind product, design, technical, and privacy choices.
+- Useful for employers who want more detail than the portfolio page can reasonably show.
+
+
 ## Current Product Direction
 
 The app should help users answer:

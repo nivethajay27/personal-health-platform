@@ -36,6 +36,34 @@ YYYY-MM-DD
 
 ### Decision
 
+Present the project as a layered portfolio case study.
+
+### Options Considered
+
+- Separate personal website for the app
+- Single polished case study inside a portfolio
+- GitHub-only project documentation
+
+### Final Choice
+
+Create one polished "Cycle App Case Study" page inside the portfolio, supported by a technical GitHub README and deeper decision docs.
+
+### Why This Matters
+
+The portfolio page should be easy to read in 3-5 minutes, while GitHub and decision docs provide technical depth for reviewers who want proof.
+
+### Tradeoffs
+
+The portfolio page should stay selective and visual instead of trying to include every technical detail.
+
+### Date
+
+2026-07-09
+
+---
+
+### Decision
+
 Use realistic demo data before connecting real user input.
 
 ### Options Considered
