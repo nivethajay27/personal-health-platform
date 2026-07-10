@@ -1,6 +1,6 @@
 # Cycle-Aware Fitness + Food Companion
 
-A  wellness dashboard that helps users understand relationships between cycle phases, food, workouts, energy, symptoms, and recovery.
+A privacy-first wellness dashboard that helps users understand relationships between cycle phases, food, workouts, energy, symptoms, and recovery.
 
 The goal is not to create a generic period tracker. The goal is to show how sensitive health-adjacent data can be modeled, visualized, and turned into responsible pattern-based insights through a polished web app.
 
@@ -32,6 +32,9 @@ Implemented so far:
 - Recharts visualizations for energy, workout intensity, and symptom patterns
 - Rule-based insight engine
 - Local-first IndexedDB storage layer
+- Daily check-in saving to local browser storage
+- Local data counts, JSON export, and delete controls
+- Dashboard sync between saved local data and demo fallback data
 - Case study documentation and implementation notes
 
 ## Tech Stack
@@ -65,9 +68,11 @@ Current privacy decisions:
 
 - Store user logs locally first with IndexedDB.
 - Keep demo data separate from real local user data.
+- Show whether the dashboard is using local data or demo data.
+- Let users export and delete browser-stored data.
 - Avoid third-party analytics for the MVP.
 - Avoid medical or diagnostic claims.
-- Add export and delete controls before any cloud sync.
+- Avoid cloud sync until the product has stronger privacy and account decisions.
 
 ## Run Locally
 
@@ -104,8 +109,8 @@ The deeper product and engineering documentation lives here:
 
 ## Next Planned Steps
 
-- Wire the daily check-in prototype to IndexedDB.
-- Add local data export and delete controls.
 - Add a privacy/settings screen.
+- Add local persistence for food, workout, and recovery logs.
 - Expand chart interactions and empty states.
+- Add stronger loading, empty, and error states around local storage.
 - Prepare screenshots and deployment notes for portfolio review.

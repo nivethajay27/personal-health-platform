@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -6,9 +9,11 @@ import { buildCycleDay, getCurrentCycle, getCycleSummary } from "@/core";
 import { demoDataset } from "@/data";
 import { CyclePhaseCard } from "@/features/dashboard/cycle-phase-card";
 import { DailyCheckInCard } from "@/features/dashboard/daily-check-in-card";
+import { LocalDataControlsCard } from "@/features/dashboard/local-data-controls-card";
 import { LoggingPrototypesCard } from "@/features/dashboard/logging-prototypes-card";
 import { PatternVisualizationsCard } from "@/features/dashboard/pattern-visualizations-card";
-import type { CyclePhase, Insight } from "@/domain";
+import type { CyclePhase, DailyCheckIn, Insight, SymptomLog } from "@/domain";
+import { localDb } from "@/storage";
 
 const DASHBOARD_DATE = "2026-07-09";
 
@@ -28,6 +33,12 @@ function formatInsightCategory(insight: Insight) {
 }
 
 export function DashboardShell() {
+  const [localCheckIns, setLocalCheckIns] = useState<DailyCheckIn[]>([]);
+  const [localSymptoms, setLocalSymptoms] = useState<SymptomLog[]>([]);
+  const [localDataStatus, setLocalDataStatus] = useState<
+    "loading" | "local" | "demo" | "error"
+  >("loading");
+  const [localDataRevision, setLocalDataRevision] = useState(0);
   const currentCycle =
     getCurrentCycle(demoDataset.cycles, DASHBOARD_DATE) ??
     demoDataset.cycles[demoDataset.cycles.length - 1];
@@ -41,7 +52,7 @@ export function DashboardShell() {
     });
   const cycleSummary = getCycleSummary(currentCycleDay);
   const currentPhase = cycleSummary.effectivePhase;
-  const todayCheckIn = demoDataset.dailyCheckIns.find(
+  const demoTodayCheckIn = demoDataset.dailyCheckIns.find(
     (checkIn) => checkIn.date === DASHBOARD_DATE,
   );
   const todayMeal = demoDataset.meals.find((meal) => meal.date === DASHBOARD_DATE);
@@ -51,9 +62,53 @@ export function DashboardShell() {
   const todayRecovery = demoDataset.recoveryLogs.find(
     (recovery) => recovery.date === DASHBOARD_DATE,
   );
-  const todaySymptoms = demoDataset.symptoms.filter(
+  const demoTodaySymptoms = demoDataset.symptoms.filter(
     (symptom) => symptom.date === DASHBOARD_DATE,
   );
+  const localTodayCheckIn = localCheckIns.find(
+    (checkIn) =>
+      checkIn.userId === demoDataset.user.id && checkIn.date === DASHBOARD_DATE,
+  );
+  const localTodaySymptoms = localSymptoms.filter(
+    (symptom) =>
+      symptom.userId === demoDataset.user.id && symptom.date === DASHBOARD_DATE,
+  );
+  const hasLocalTodayData =
+    Boolean(localTodayCheckIn) || localTodaySymptoms.length > 0;
+  const todayCheckIn = localTodayCheckIn ?? demoTodayCheckIn;
+  const todaySymptoms = hasLocalTodayData
+    ? localTodaySymptoms
+    : demoTodaySymptoms;
+  const dailyCheckInsForCurrentCycle = useMemo(
+    () =>
+      mergeLocalCheckInsForCycle({
+        cycleId: currentCycle.id,
+        demoCheckIns: demoDataset.dailyCheckIns,
+        localCheckIns,
+      }),
+    [currentCycle.id, localCheckIns],
+  );
+  const symptomsForCurrentCycle = useMemo(
+    () =>
+      mergeLocalSymptomsForCycle({
+        cycleId: currentCycle.id,
+        demoSymptoms: demoDataset.symptoms,
+        localSymptoms,
+      }),
+    [currentCycle.id, localSymptoms],
+  );
+  const localDataBadge =
+    localDataStatus === "local"
+      ? "Using local data"
+      : localDataStatus === "error"
+        ? "Demo mode"
+        : localDataStatus === "loading"
+          ? "Checking local data"
+          : "Demo mode";
+
+  useEffect(() => {
+    void refreshLocalDashboardData();
+  }, []);
 
   const keyMetrics = [
     {
@@ -90,6 +145,10 @@ export function DashboardShell() {
             userName={demoDataset.user.displayName}
           />
 
+          <Badge className="w-fit" tone={localDataStatus === "local" ? "primary" : "neutral"}>
+            {localDataBadge}
+          </Badge>
+
           <div className="grid gap-3 sm:grid-cols-2">
             {keyMetrics.map((metric) => (
               <Card className="bg-warm-cream shadow-none" key={metric.label}>
@@ -121,7 +180,13 @@ export function DashboardShell() {
             </p>
           </Card>
 
-          <DailyCheckInCard checkIn={todayCheckIn} symptoms={todaySymptoms} />
+          <DailyCheckInCard
+            checkIn={todayCheckIn}
+            date={DASHBOARD_DATE}
+            onSaved={handleLocalDataChanged}
+            symptoms={todaySymptoms}
+            userId={demoDataset.user.id}
+          />
         </div>
       </section>
 
@@ -162,14 +227,14 @@ export function DashboardShell() {
         cycleDays={demoDataset.cycleDays.filter(
           (day) => day.cycleId === currentCycle.id,
         )}
-        dailyCheckIns={demoDataset.dailyCheckIns.filter((checkIn) =>
-          demoDataset.cycleDays.some(
-            (day) =>
-              day.cycleId === currentCycle.id && day.date === checkIn.date,
-          ),
-        )}
-        symptoms={demoDataset.symptoms}
+        dailyCheckIns={dailyCheckInsForCurrentCycle}
+        symptoms={symptomsForCurrentCycle}
         workouts={demoDataset.workouts}
+      />
+
+      <LocalDataControlsCard
+        onLocalDataCleared={handleLocalDataChanged}
+        refreshKey={localDataRevision}
       />
 
       <p className="sr-only" id="next-steps">
@@ -177,4 +242,89 @@ export function DashboardShell() {
       </p>
     </AppShell>
   );
+
+  async function refreshLocalDashboardData() {
+    setLocalDataStatus("loading");
+
+    try {
+      const [savedCheckIns, savedSymptoms] = await Promise.all([
+        localDb.getDailyCheckIns(),
+        localDb.getSymptomLogs(),
+      ]);
+      const userCheckIns = savedCheckIns.filter(
+        (checkIn) => checkIn.userId === demoDataset.user.id,
+      );
+      const userSymptoms = savedSymptoms.filter(
+        (symptom) => symptom.userId === demoDataset.user.id,
+      );
+
+      setLocalCheckIns(userCheckIns);
+      setLocalSymptoms(userSymptoms);
+      setLocalDataStatus(
+        userCheckIns.length || userSymptoms.length ? "local" : "demo",
+      );
+    } catch {
+      setLocalDataStatus("error");
+    }
+  }
+
+  async function handleLocalDataChanged() {
+    await refreshLocalDashboardData();
+    setLocalDataRevision((revision) => revision + 1);
+  }
+}
+
+function mergeLocalCheckInsForCycle({
+  cycleId,
+  demoCheckIns,
+  localCheckIns,
+}: {
+  cycleId: string;
+  demoCheckIns: DailyCheckIn[];
+  localCheckIns: DailyCheckIn[];
+}) {
+  const cycleDates = new Set(
+    demoDataset.cycleDays
+      .filter((day) => day.cycleId === cycleId)
+      .map((day) => day.date),
+  );
+  const localByDate = new Map(
+    localCheckIns
+      .filter((checkIn) => cycleDates.has(checkIn.date))
+      .map((checkIn) => [checkIn.date, checkIn]),
+  );
+
+  return demoCheckIns
+    .filter((checkIn) => cycleDates.has(checkIn.date))
+    .map((checkIn) => localByDate.get(checkIn.date) ?? checkIn);
+}
+
+function mergeLocalSymptomsForCycle({
+  cycleId,
+  demoSymptoms,
+  localSymptoms,
+}: {
+  cycleId: string;
+  demoSymptoms: SymptomLog[];
+  localSymptoms: SymptomLog[];
+}) {
+  const cycleDates = new Set(
+    demoDataset.cycleDays
+      .filter((day) => day.cycleId === cycleId)
+      .map((day) => day.date),
+  );
+  const datesWithLocalSymptoms = new Set(
+    localSymptoms
+      .filter((symptom) => cycleDates.has(symptom.date))
+      .map((symptom) => symptom.date),
+  );
+  const demoWithoutLocalDates = demoSymptoms.filter(
+    (symptom) =>
+      cycleDates.has(symptom.date) && !datesWithLocalSymptoms.has(symptom.date),
+  );
+  const localForCycle = localSymptoms.filter((symptom) =>
+    cycleDates.has(symptom.date),
+  );
+
+  return [...demoWithoutLocalDates, ...localForCycle];
 }

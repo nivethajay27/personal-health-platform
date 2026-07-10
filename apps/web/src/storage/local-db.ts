@@ -172,6 +172,32 @@ export function getLocalRecords<StoreName extends LocalStoreName>(
   );
 }
 
+export async function exportAllLocalData() {
+  const entries = await Promise.all(
+    localStoreNames.map(async (storeName) => {
+      const records = await getLocalRecords(storeName);
+
+      return [storeName, records] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries) as {
+    [StoreName in LocalStoreName]: LocalRecordByStore[StoreName][];
+  };
+}
+
+export async function getLocalRecordCounts() {
+  const entries = await Promise.all(
+    localStoreNames.map(async (storeName) => {
+      const records = await getLocalRecords(storeName);
+
+      return [storeName, records.length] as const;
+    }),
+  );
+
+  return Object.fromEntries(entries) as Record<LocalStoreName, number>;
+}
+
 export function deleteLocalRecord(
   storeName: LocalStoreName,
   key: IDBValidKey,
@@ -214,6 +240,8 @@ export const localDb = {
   getWorkoutLogs: () => getLocalRecords("workoutLogs"),
 
   clearAll: clearAllLocalData,
+  exportAll: exportAllLocalData,
+  getCounts: getLocalRecordCounts,
 };
 
 function withObjectStore<Result>(

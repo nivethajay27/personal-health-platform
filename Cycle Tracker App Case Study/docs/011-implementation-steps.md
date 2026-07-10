@@ -129,3 +129,32 @@ This file tracks the actual build steps in a simple, concise way.
 - Added typed save/get/clear helpers.
 - Kept storage separate from demo data and dashboard UI for now.
 - Reason: privacy-first user data should stay local before any cloud sync is considered.
+
+## Step 19: Save Daily Check-In Locally
+
+- Converted the daily check-in card into an interactive client component.
+- Added sliders, selectable chips, notes, and a local save state.
+- Saved daily check-ins and selected symptoms to IndexedDB.
+- Reason: the first real user action should prove the privacy-first local storage model.
+
+## Step 20: Add Local Data Controls
+
+- Added dashboard privacy controls for local data counts, JSON export, and delete-all.
+- Added storage helpers for exporting all stores and counting local records.
+- Used a confirm step before deleting browser-stored data.
+- Reason: privacy-first products need visible user control over stored data.
+
+## Step 21: Read Local Data On Dashboard
+
+- Loaded saved local check-ins and symptoms from IndexedDB.
+- Used local dashboard data when it exists, with demo data as fallback.
+- Added a dashboard data-mode badge.
+- Refreshed dashboard data after saving a check-in.
+- Reason: saved local data should visibly affect the product experience.
+
+## Step 22: Coordinate Local Data Refreshes
+
+- Synced dashboard local-data mode with privacy controls.
+- Refreshed local record counts after check-in saves.
+- Refreshed dashboard data after local delete actions.
+- Reason: saving or deleting local data should update the whole dashboard consistently.
