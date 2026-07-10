@@ -12,7 +12,15 @@ import { DailyCheckInCard } from "@/features/dashboard/daily-check-in-card";
 import { LocalDataControlsCard } from "@/features/dashboard/local-data-controls-card";
 import { LoggingPrototypesCard } from "@/features/dashboard/logging-prototypes-card";
 import { PatternVisualizationsCard } from "@/features/dashboard/pattern-visualizations-card";
-import type { CyclePhase, DailyCheckIn, Insight, SymptomLog } from "@/domain";
+import type {
+  CyclePhase,
+  DailyCheckIn,
+  Insight,
+  MealLog,
+  RecoveryLog,
+  SymptomLog,
+  WorkoutLog,
+} from "@/domain";
 import { localDb } from "@/storage";
 
 const DASHBOARD_DATE = "2026-07-09";
@@ -34,7 +42,10 @@ function formatInsightCategory(insight: Insight) {
 
 export function DashboardShell() {
   const [localCheckIns, setLocalCheckIns] = useState<DailyCheckIn[]>([]);
+  const [localMeals, setLocalMeals] = useState<MealLog[]>([]);
+  const [localRecoveryLogs, setLocalRecoveryLogs] = useState<RecoveryLog[]>([]);
   const [localSymptoms, setLocalSymptoms] = useState<SymptomLog[]>([]);
+  const [localWorkouts, setLocalWorkouts] = useState<WorkoutLog[]>([]);
   const [localDataStatus, setLocalDataStatus] = useState<
     "loading" | "local" | "demo" | "error"
   >("demo");
@@ -62,6 +73,20 @@ export function DashboardShell() {
   const todayRecovery = demoDataset.recoveryLogs.find(
     (recovery) => recovery.date === DASHBOARD_DATE,
   );
+  const localTodayMeal = localMeals.find(
+    (meal) => meal.userId === demoDataset.user.id && meal.date === DASHBOARD_DATE,
+  );
+  const localTodayWorkout = localWorkouts.find(
+    (workout) =>
+      workout.userId === demoDataset.user.id && workout.date === DASHBOARD_DATE,
+  );
+  const localTodayRecovery = localRecoveryLogs.find(
+    (recovery) =>
+      recovery.userId === demoDataset.user.id && recovery.date === DASHBOARD_DATE,
+  );
+  const displayMeal = localTodayMeal ?? todayMeal;
+  const displayWorkout = localTodayWorkout ?? todayWorkout;
+  const displayRecovery = localTodayRecovery ?? todayRecovery;
   const demoTodaySymptoms = demoDataset.symptoms.filter(
     (symptom) => symptom.date === DASHBOARD_DATE,
   );
@@ -97,6 +122,15 @@ export function DashboardShell() {
       }),
     [currentCycle.id, localSymptoms],
   );
+  const workoutsForCurrentCycle = useMemo(
+    () =>
+      mergeLocalWorkoutsForCycle({
+        cycleId: currentCycle.id,
+        demoWorkouts: demoDataset.workouts,
+        localWorkouts,
+      }),
+    [currentCycle.id, localWorkouts],
+  );
   const localDataBadge =
     localDataStatus === "local"
       ? "Using local data"
@@ -105,6 +139,14 @@ export function DashboardShell() {
         : localDataStatus === "loading"
           ? "Checking local data"
           : "Demo mode";
+  const localDataMessage =
+    localDataStatus === "local"
+      ? "Saved browser data is blended into today's dashboard."
+      : localDataStatus === "error"
+        ? "Local storage is unavailable, so the dashboard is showing demo data."
+        : localDataStatus === "loading"
+          ? "Checking this browser for saved logs."
+          : "Demo data is shown until you save local logs.";
 
   useEffect(() => {
     void refreshLocalDashboardData({ showLoading: false });
@@ -118,7 +160,7 @@ export function DashboardShell() {
     },
     {
       label: "Recovery",
-      value: `${todayRecovery?.readinessScore ?? 0}%`,
+      value: `${displayRecovery?.readinessScore ?? 0}%`,
       detail: "Readiness score",
     },
     {
@@ -135,7 +177,10 @@ export function DashboardShell() {
 
   return (
     <AppShell>
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch">
+      <section
+        className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-stretch"
+        id="cycle"
+      >
         <div className="grid gap-6">
           <CyclePhaseCard
             cycleDayNumber={cycleSummary.cycleDayNumber}
@@ -145,12 +190,17 @@ export function DashboardShell() {
             userName={demoDataset.user.displayName}
           />
 
-          <Badge
-            className="h-fit w-fit self-start"
-            tone={localDataStatus === "local" ? "primary" : "neutral"}
-          >
-            {localDataBadge}
-          </Badge>
+          <div className="grid gap-2">
+            <Badge
+              className="h-fit w-fit self-start"
+              tone={localDataStatus === "local" ? "primary" : "neutral"}
+            >
+              {localDataBadge}
+            </Badge>
+            <p className="text-sm leading-6 text-secondary-text">
+              {localDataMessage}
+            </p>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {keyMetrics.map((metric) => (
@@ -186,6 +236,7 @@ export function DashboardShell() {
           <DailyCheckInCard
             checkIn={todayCheckIn}
             date={DASHBOARD_DATE}
+            hasSavedLocalData={hasLocalTodayData}
             onSaved={handleLocalDataChanged}
             symptoms={todaySymptoms}
             userId={demoDataset.user.id}
@@ -194,13 +245,19 @@ export function DashboardShell() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <LoggingPrototypesCard
-          meal={todayMeal}
-          recovery={todayRecovery}
-          workout={todayWorkout}
-        />
+        <div className="min-w-0" id="nutrition">
+          <LoggingPrototypesCard
+            cyclePhase={currentPhase}
+            date={DASHBOARD_DATE}
+            meal={displayMeal}
+            onSaved={handleLocalDataChanged}
+            recovery={displayRecovery}
+            userId={demoDataset.user.id}
+            workout={displayWorkout}
+          />
+        </div>
 
-        <Card>
+        <Card id="insights">
           <SectionHeader
             description="Generated from rule checks across cycle, food, workout, symptom, and recovery demo data."
             eyebrow="Patterns"
@@ -232,7 +289,7 @@ export function DashboardShell() {
         )}
         dailyCheckIns={dailyCheckInsForCurrentCycle}
         symptoms={symptomsForCurrentCycle}
-        workouts={demoDataset.workouts}
+        workouts={workoutsForCurrentCycle}
       />
 
       <LocalDataControlsCard
@@ -256,21 +313,48 @@ export function DashboardShell() {
     }
 
     try {
-      const [savedCheckIns, savedSymptoms] = await Promise.all([
+      const [
+        savedCheckIns,
+        savedMeals,
+        savedRecoveryLogs,
+        savedSymptoms,
+        savedWorkouts,
+      ] = await Promise.all([
         localDb.getDailyCheckIns(),
+        localDb.getMealLogs(),
+        localDb.getRecoveryLogs(),
         localDb.getSymptomLogs(),
+        localDb.getWorkoutLogs(),
       ]);
       const userCheckIns = savedCheckIns.filter(
         (checkIn) => checkIn.userId === demoDataset.user.id,
       );
+      const userMeals = savedMeals.filter(
+        (meal) => meal.userId === demoDataset.user.id,
+      );
+      const userRecoveryLogs = savedRecoveryLogs.filter(
+        (recovery) => recovery.userId === demoDataset.user.id,
+      );
       const userSymptoms = savedSymptoms.filter(
         (symptom) => symptom.userId === demoDataset.user.id,
       );
+      const userWorkouts = savedWorkouts.filter(
+        (workout) => workout.userId === demoDataset.user.id,
+      );
 
       setLocalCheckIns(userCheckIns);
+      setLocalMeals(userMeals);
+      setLocalRecoveryLogs(userRecoveryLogs);
       setLocalSymptoms(userSymptoms);
+      setLocalWorkouts(userWorkouts);
       setLocalDataStatus(
-        userCheckIns.length || userSymptoms.length ? "local" : "demo",
+        userCheckIns.length ||
+          userMeals.length ||
+          userRecoveryLogs.length ||
+          userSymptoms.length ||
+          userWorkouts.length
+          ? "local"
+          : "demo",
       );
     } catch {
       setLocalDataStatus("error");
@@ -336,4 +420,29 @@ function mergeLocalSymptomsForCycle({
   );
 
   return [...demoWithoutLocalDates, ...localForCycle];
+}
+
+function mergeLocalWorkoutsForCycle({
+  cycleId,
+  demoWorkouts,
+  localWorkouts,
+}: {
+  cycleId: string;
+  demoWorkouts: WorkoutLog[];
+  localWorkouts: WorkoutLog[];
+}) {
+  const cycleDates = new Set(
+    demoDataset.cycleDays
+      .filter((day) => day.cycleId === cycleId)
+      .map((day) => day.date),
+  );
+  const localByDate = new Map(
+    localWorkouts
+      .filter((workout) => cycleDates.has(workout.date))
+      .map((workout) => [workout.date, workout]),
+  );
+
+  return demoWorkouts
+    .filter((workout) => cycleDates.has(workout.date))
+    .map((workout) => localByDate.get(workout.date) ?? workout);
 }

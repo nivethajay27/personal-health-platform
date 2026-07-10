@@ -72,14 +72,14 @@ export function CyclePhaseCard({
             <span>{Math.round(phaseProgress * 100)}% through phase</span>
           </div>
 
-          <div className="relative pt-6">
+          <div className="relative pt-8">
             <div
-              className="absolute top-0 h-6 w-px bg-primary-text"
+              className="absolute top-2 h-6 w-px bg-primary-text"
               style={{ left: dayMarkerPosition }}
             >
               <span
                 className={cn(
-                  "absolute top-[-1.5rem] whitespace-nowrap rounded-full bg-primary-text px-2 py-1 text-xs font-semibold text-white",
+                  "absolute top-0 whitespace-nowrap rounded-full bg-primary-text px-2 py-1 text-xs font-semibold text-white",
                   dayMarkerLabelClass,
                 )}
               >

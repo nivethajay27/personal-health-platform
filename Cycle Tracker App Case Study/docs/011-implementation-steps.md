@@ -165,3 +165,24 @@ This file tracks the actual build steps in a simple, concise way.
 - Linked screenshots from the main README.
 - Fixed small responsive overflow and badge sizing issues found during capture.
 - Reason: portfolio reviewers should quickly understand the app without running it locally.
+
+## Step 24: Add Privacy Settings Screen
+
+- Added a dedicated `/settings` route for privacy and local data controls.
+- Added local privacy preference toggles backed by IndexedDB.
+- Linked app navigation to Home, Privacy, Cycle, Nutrition, and Insights areas.
+- Reason: privacy is a core product feature, not just a dashboard utility.
+
+## Step 25: Save Food, Workout, And Recovery Logs Locally
+
+- Converted food, workout, and recovery panels from read-only prototypes into editable logs.
+- Saved meal, workout, and recovery records to IndexedDB.
+- Refreshed dashboard metrics, local data mode, counts, and workout charts after saves.
+- Reason: the product promise depends on patterns across cycle, nutrition, movement, and recovery.
+
+## Step 26: Add Empty, Loading, And Error States
+
+- Added clearer dashboard copy for demo, local, loading, and storage-error modes.
+- Disabled export/delete controls when no local data exists.
+- Improved local data count, save, and privacy preference status messages.
+- Reason: real products need calm feedback when data is missing, saving, or unavailable.

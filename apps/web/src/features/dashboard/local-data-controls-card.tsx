@@ -17,7 +17,7 @@ type LocalDataState =
   | "error";
 
 type LocalDataControlsCardProps = {
-  onLocalDataCleared?: () => void;
+  onLocalDataCleared?: () => Promise<void> | void;
   refreshKey?: number;
 };
 
@@ -42,6 +42,11 @@ export function LocalDataControlsCard({
   );
   const [state, setState] = useState<LocalDataState>("idle");
   const [confirmClear, setConfirmClear] = useState(false);
+  const totalVisibleRecords = counts
+    ? visibleStores.reduce((total, store) => total + counts[store.name], 0)
+    : 0;
+  const hasLocalData = Boolean(counts && totalVisibleRecords > 0);
+  const controlsDisabled = state === "loading" || state === "error";
 
   useEffect(() => {
     void refreshCounts({ quiet: true });
@@ -66,7 +71,7 @@ export function LocalDataControlsCard({
           >
             <p className="text-sm text-secondary-text">{store.label}</p>
             <p className="mt-1 font-heading text-2xl font-semibold text-primary-text">
-              {counts ? counts[store.name] : "-"}
+              {counts ? counts[store.name] : "Checking"}
             </p>
           </div>
         ))}
@@ -74,7 +79,12 @@ export function LocalDataControlsCard({
 
       <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <p className="text-sm leading-6 text-secondary-text">
-          {getStateMessage(state, confirmClear)}
+          {getStateMessage({
+            confirmClear,
+            hasCounts: Boolean(counts),
+            hasLocalData,
+            state,
+          })}
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button
@@ -85,14 +95,14 @@ export function LocalDataControlsCard({
             Refresh counts
           </Button>
           <Button
-            disabled={state === "loading"}
+            disabled={controlsDisabled || !hasLocalData}
             onClick={exportLocalData}
             variant="secondary"
           >
             Export JSON
           </Button>
           <Button
-            disabled={state === "loading"}
+            disabled={controlsDisabled || !hasLocalData}
             onClick={clearLocalData}
             variant="ghost"
           >
@@ -108,6 +118,18 @@ export function LocalDataControlsCard({
     setConfirmClear(false);
 
     try {
+      const latestCounts = await localDb.getCounts();
+      const totalRecords = visibleStores.reduce(
+        (total, store) => total + latestCounts[store.name],
+        0,
+      );
+
+      if (!totalRecords) {
+        setCounts(latestCounts);
+        setState("ready");
+        return;
+      }
+
       const exportedData = await localDb.exportAll();
       const blob = new Blob([JSON.stringify(exportedData, null, 2)], {
         type: "application/json",
@@ -122,7 +144,7 @@ export function LocalDataControlsCard({
       link.click();
       URL.revokeObjectURL(url);
 
-      setCounts(await localDb.getCounts());
+      setCounts(latestCounts);
       setState("exported");
     } catch {
       setState("error");
@@ -143,7 +165,7 @@ export function LocalDataControlsCard({
       setCounts(await localDb.getCounts());
       setConfirmClear(false);
       setState("cleared");
-      onLocalDataCleared?.();
+      await onLocalDataCleared?.();
     } catch {
       setState("error");
     }
@@ -156,7 +178,8 @@ export function LocalDataControlsCard({
     setConfirmClear(false);
 
     try {
-      setCounts(await localDb.getCounts());
+      const latestCounts = await localDb.getCounts();
+      setCounts(latestCounts);
       setState(quiet ? "idle" : "ready");
     } catch {
       setState("error");
@@ -164,9 +187,23 @@ export function LocalDataControlsCard({
   }
 }
 
-function getStateMessage(state: LocalDataState, confirmClear: boolean) {
-  if (confirmClear) return "Click confirm delete to remove local browser data.";
+function getStateMessage({
+  confirmClear,
+  hasCounts,
+  hasLocalData,
+  state,
+}: {
+  confirmClear: boolean;
+  hasCounts: boolean;
+  hasLocalData: boolean;
+  state: LocalDataState;
+}) {
+  if (confirmClear) {
+    return "Click confirm delete to remove all local browser data for this demo.";
+  }
   if (state === "loading") return "Checking local browser storage...";
+  if (!hasCounts) return "Local data counts are loading.";
+  if (!hasLocalData) return "No local logs saved yet. Demo data is still shown.";
   if (state === "ready") return "Local data counts are up to date.";
   if (state === "exported") return "Export created from local browser data.";
   if (state === "cleared") return "Local browser data has been deleted.";

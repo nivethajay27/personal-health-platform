@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +15,8 @@ import type {
   WorkoutLog,
   WorkoutType,
 } from "@/domain";
+import { cn } from "@/lib/utils";
+import { localDb } from "@/storage";
 
 const mealTypeLabels: Record<MealType, string> = {
   breakfast: "Breakfast",
@@ -49,17 +53,117 @@ const phaseLabels: Record<CyclePhase, string> = {
   ovulatory: "Ovulation",
 };
 
+const mealTypes: MealType[] = ["breakfast", "lunch", "dinner", "snack"];
+const nutrientFocuses: NutrientFocus[] = [
+  "protein_focused",
+  "fiber",
+  "hydration",
+  "iron_rich",
+  "magnesium_rich",
+  "complex_carbs",
+];
+const workoutTypes: WorkoutType[] = [
+  "walking",
+  "yoga",
+  "pilates",
+  "strength_training",
+  "cardio",
+  "hiit",
+  "stretching",
+  "rest_day",
+];
+
+type SaveState = "idle" | "saving" | "saved" | "error";
+
 type LoggingPrototypesCardProps = {
+  cyclePhase: CyclePhase;
+  date: string;
   meal?: MealLog;
+  onSaved?: () => Promise<void> | void;
   recovery?: RecoveryLog;
+  userId: string;
   workout?: WorkoutLog;
 };
 
 export function LoggingPrototypesCard({
+  cyclePhase,
+  date,
   meal,
+  onSaved,
   recovery,
+  userId,
   workout,
 }: LoggingPrototypesCardProps) {
+  const [mealType, setMealType] = useState<MealType>(
+    meal?.mealType ?? "breakfast",
+  );
+  const [mealName, setMealName] = useState(meal?.name ?? "");
+  const [proteinEstimate, setProteinEstimate] = useState<IntensityLevel>(
+    meal?.proteinEstimate ?? 3,
+  );
+  const [fiberEstimate, setFiberEstimate] = useState<IntensityLevel>(
+    meal?.fiberEstimate ?? 3,
+  );
+  const [hydrationEstimate, setHydrationEstimate] = useState<IntensityLevel>(
+    meal?.hydrationEstimate ?? 3,
+  );
+  const [cravingsPresent, setCravingsPresent] = useState(
+    meal?.cravingsPresent ?? false,
+  );
+  const [selectedNutrients, setSelectedNutrients] = useState<NutrientFocus[]>(
+    meal?.nutrientFocus?.length ? meal.nutrientFocus : ["protein_focused"],
+  );
+  const [mealNotes, setMealNotes] = useState(meal?.notes ?? "");
+
+  const [workoutType, setWorkoutType] = useState<WorkoutType>(
+    workout?.type ?? "walking",
+  );
+  const [durationMinutes, setDurationMinutes] = useState(
+    workout?.durationMinutes ?? 30,
+  );
+  const [intensity, setIntensity] = useState<IntensityLevel>(
+    workout?.intensity ?? 3,
+  );
+  const [perceivedEffort, setPerceivedEffort] = useState<IntensityLevel>(
+    workout?.perceivedEffort ?? 3,
+  );
+  const [recoveryAfterward, setRecoveryAfterward] = useState<IntensityLevel>(
+    workout?.recoveryAfterward ?? 3,
+  );
+  const [workoutNotes, setWorkoutNotes] = useState(workout?.notes ?? "");
+
+  const [sleepHours, setSleepHours] = useState(recovery?.sleepHours ?? 7);
+  const [sleepQuality, setSleepQuality] = useState<IntensityLevel>(
+    recovery?.sleepQuality ?? 3,
+  );
+  const [hydrationLevel, setHydrationLevel] = useState<IntensityLevel>(
+    recovery?.hydrationLevel ?? 3,
+  );
+  const [fatigueLevel, setFatigueLevel] = useState<IntensityLevel>(
+    recovery?.fatigueLevel ?? 3,
+  );
+  const [stressLevel, setStressLevel] = useState<IntensityLevel>(
+    recovery?.stressLevel ?? 3,
+  );
+  const [sorenessLevel, setSorenessLevel] = useState<IntensityLevel>(
+    recovery?.sorenessLevel ?? 2,
+  );
+  const [recoveryNotes, setRecoveryNotes] = useState(recovery?.notes ?? "");
+  const [saveState, setSaveState] = useState<Record<string, SaveState>>({
+    meal: "idle",
+    recovery: "idle",
+    workout: "idle",
+  });
+
+  const readinessScore = Math.round(
+    (sleepQuality * 18 +
+      hydrationLevel * 14 +
+      (6 - fatigueLevel) * 14 +
+      (6 - stressLevel) * 14 +
+      (6 - sorenessLevel) * 12) /
+      3.6,
+  );
+
   return (
     <Card>
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -72,131 +176,312 @@ export function LoggingPrototypesCard({
       </div>
 
       <div className="mt-6 grid gap-4">
-        <LogPrototypePanel
+        <LogPanel
           accent="bg-primary"
           actionLabel="Save meal"
-          eyebrow={meal ? mealTypeLabels[meal.mealType] : "Meal"}
-          title={meal?.name ?? "No meal logged"}
+          hasSavedLocalData={isLocalRecord(meal)}
+          eyebrow={mealTypeLabels[mealType]}
+          onSave={saveMeal}
+          saveState={saveState.meal}
+          title={mealName.trim() || "Quick meal log"}
         >
+          <ChipPicker
+            label="Meal type"
+            onSelect={setMealType}
+            options={mealTypes.map((type) => ({
+              label: mealTypeLabels[type],
+              value: type,
+            }))}
+            selected={mealType}
+          />
+
+          <label className="grid gap-2 text-sm font-medium text-secondary-text">
+            Meal name
+            <input
+              className="h-12 rounded-button border border-soft-stone bg-surface px-4 text-primary-text outline-none focus:border-primary"
+              onChange={(event) => setMealName(event.target.value)}
+              placeholder="Oatmeal with chia"
+              value={mealName}
+            />
+          </label>
+
           <MeterGrid
             items={[
               {
                 label: "Protein",
-                value: meal?.proteinEstimate ?? 3,
+                onChange: setProteinEstimate,
+                value: proteinEstimate,
               },
               {
                 label: "Fiber",
-                value: meal?.fiberEstimate ?? 3,
+                onChange: setFiberEstimate,
+                value: fiberEstimate,
               },
               {
                 label: "Hydration",
-                value: meal?.hydrationEstimate ?? 3,
+                onChange: setHydrationEstimate,
+                value: hydrationEstimate,
               },
             ]}
           />
-          <ChipRow
-            label="Nutrient focus"
-            values={
-              meal?.nutrientFocus.map((focus) => nutrientLabels[focus]) ?? [
-                "Balanced",
-              ]
-            }
-          />
-          <KeyValue
-            label="Cravings"
-            value={meal?.cravingsPresent ? "Present" : "Not logged"}
-          />
-        </LogPrototypePanel>
 
-        <LogPrototypePanel
+          <MultiChipPicker
+            label="Nutrient focus"
+            onToggle={toggleNutrient}
+            options={nutrientFocuses.map((focus) => ({
+              label: nutrientLabels[focus],
+              value: focus,
+            }))}
+            selected={selectedNutrients}
+          />
+
+          <button
+            aria-pressed={cravingsPresent}
+            className={cn(
+              "w-fit rounded-full border px-4 py-2 text-sm font-medium",
+              cravingsPresent
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-soft-stone bg-surface text-secondary-text",
+            )}
+            onClick={() => setCravingsPresent((current) => !current)}
+            type="button"
+          >
+            Cravings {cravingsPresent ? "present" : "not present"}
+          </button>
+
+          <ShortNote
+            onChange={setMealNotes}
+            placeholder="Optional food pattern note"
+            value={mealNotes}
+          />
+        </LogPanel>
+
+        <LogPanel
           accent="bg-secondary"
           actionLabel="Save workout"
-          eyebrow={workout?.cyclePhase ? phaseLabels[workout.cyclePhase] : "Cycle phase"}
-          title={workout ? workoutLabels[workout.type] : "No workout logged"}
+          hasSavedLocalData={isLocalRecord(workout)}
+          eyebrow={phaseLabels[cyclePhase]}
+          onSave={saveWorkout}
+          saveState={saveState.workout}
+          title={workoutLabels[workoutType]}
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <KeyValue
-              label="Duration"
-              value={
-                workout?.durationMinutes
-                  ? `${workout.durationMinutes} min`
-                  : "Recovery day"
+          <ChipPicker
+            label="Workout type"
+            onSelect={setWorkoutType}
+            options={workoutTypes.map((type) => ({
+              label: workoutLabels[type],
+              value: type,
+            }))}
+            selected={workoutType}
+          />
+
+          <label className="grid gap-2 text-sm font-medium text-secondary-text">
+            Duration
+            <input
+              className="h-12 rounded-button border border-soft-stone bg-surface px-4 text-primary-text outline-none focus:border-primary"
+              min={0}
+              onChange={(event) =>
+                setDurationMinutes(Number(event.target.value))
               }
+              type="number"
+              value={durationMinutes}
             />
-            <KeyValue
-              label="Recovery afterward"
-              value={`${workout?.recoveryAfterward ?? 3}/5`}
-            />
-          </div>
+          </label>
+
           <MeterGrid
             items={[
               {
                 label: "Intensity",
-                value: workout?.intensity ?? 3,
+                onChange: setIntensity,
+                value: intensity,
               },
               {
                 label: "Perceived effort",
-                value: workout?.perceivedEffort ?? 3,
+                onChange: setPerceivedEffort,
+                value: perceivedEffort,
+              },
+              {
+                label: "Recovery afterward",
+                onChange: setRecoveryAfterward,
+                value: recoveryAfterward,
               },
             ]}
           />
-        </LogPrototypePanel>
 
-        <LogPrototypePanel
+          <ShortNote
+            onChange={setWorkoutNotes}
+            placeholder="Optional workout or recovery note"
+            value={workoutNotes}
+          />
+        </LogPanel>
+
+        <LogPanel
           accent="bg-phase-luteal"
           actionLabel="Save recovery"
+          hasSavedLocalData={isLocalRecord(recovery)}
           eyebrow="Readiness"
-          title={`${recovery?.readinessScore ?? 0}% recovery score`}
+          onSave={saveRecovery}
+          saveState={saveState.recovery}
+          title={`${readinessScore}% recovery score`}
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <KeyValue
-              label="Sleep"
-              value={`${recovery?.sleepHours ?? 0}h · ${
-                recovery?.sleepQuality ?? 0
-              }/5 quality`}
+          <label className="grid gap-2 text-sm font-medium text-secondary-text">
+            Sleep hours
+            <input
+              className="h-12 rounded-button border border-soft-stone bg-surface px-4 text-primary-text outline-none focus:border-primary"
+              max={12}
+              min={0}
+              onChange={(event) => setSleepHours(Number(event.target.value))}
+              step={0.25}
+              type="number"
+              value={sleepHours}
             />
-            <KeyValue
-              label="Fatigue"
-              value={`${recovery?.fatigueLevel ?? 0}/5`}
-            />
-          </div>
+          </label>
+
           <MeterGrid
             items={[
               {
+                label: "Sleep quality",
+                onChange: setSleepQuality,
+                value: sleepQuality,
+              },
+              {
                 label: "Hydration",
-                value: recovery?.hydrationLevel ?? 3,
+                onChange: setHydrationLevel,
+                value: hydrationLevel,
+              },
+              {
+                label: "Fatigue",
+                onChange: setFatigueLevel,
+                value: fatigueLevel,
               },
               {
                 label: "Stress",
-                value: recovery?.stressLevel ?? 3,
+                onChange: setStressLevel,
+                value: stressLevel,
               },
               {
                 label: "Soreness",
-                value: recovery?.sorenessLevel ?? 2,
+                onChange: setSorenessLevel,
+                value: sorenessLevel,
               },
             ]}
           />
-        </LogPrototypePanel>
+
+          <ShortNote
+            onChange={setRecoveryNotes}
+            placeholder="Optional recovery note"
+            value={recoveryNotes}
+          />
+        </LogPanel>
       </div>
     </Card>
   );
+
+  function toggleNutrient(value: NutrientFocus) {
+    setSelectedNutrients((current) => {
+      if (current.includes(value)) {
+        const nextValues = current.filter((item) => item !== value);
+        return nextValues.length ? nextValues : current;
+      }
+
+      return [...current, value];
+    });
+  }
+
+  async function saveMeal() {
+    const createdAt = new Date().toISOString();
+    const record: MealLog = {
+      id: `local_meal_${userId}_${date}`,
+      createdAt,
+      cravingsPresent,
+      cyclePhase,
+      date,
+      fiberEstimate,
+      hydrationEstimate,
+      mealType,
+      name: mealName.trim() || "Quick meal log",
+      notes: mealNotes.trim() || undefined,
+      nutrientFocus: selectedNutrients,
+      proteinEstimate,
+      userId,
+    };
+
+    await saveRecord("meal", () => localDb.saveMealLog(record));
+  }
+
+  async function saveWorkout() {
+    const createdAt = new Date().toISOString();
+    const record: WorkoutLog = {
+      id: `local_workout_${userId}_${date}`,
+      createdAt,
+      cyclePhase,
+      date,
+      durationMinutes,
+      intensity,
+      notes: workoutNotes.trim() || undefined,
+      perceivedEffort,
+      recoveryAfterward,
+      type: workoutType,
+      userId,
+    };
+
+    await saveRecord("workout", () => localDb.saveWorkoutLog(record));
+  }
+
+  async function saveRecovery() {
+    const createdAt = new Date().toISOString();
+    const record: RecoveryLog = {
+      id: `local_recovery_${userId}_${date}`,
+      createdAt,
+      date,
+      fatigueLevel,
+      hydrationLevel,
+      notes: recoveryNotes.trim() || undefined,
+      readinessScore,
+      sleepHours,
+      sleepQuality,
+      sorenessLevel,
+      stressLevel,
+      userId,
+    };
+
+    await saveRecord("recovery", () => localDb.saveRecoveryLog(record));
+  }
+
+  async function saveRecord(key: string, save: () => Promise<unknown>) {
+    setSaveState((current) => ({ ...current, [key]: "saving" }));
+
+    try {
+      await save();
+      setSaveState((current) => ({ ...current, [key]: "saved" }));
+      await onSaved?.();
+    } catch {
+      setSaveState((current) => ({ ...current, [key]: "error" }));
+    }
+  }
 }
 
-type LogPrototypePanelProps = {
+type LogPanelProps = {
   accent: string;
   actionLabel: string;
-  children: ReactNode;
+  children: React.ReactNode;
+  hasSavedLocalData?: boolean;
   eyebrow: string;
+  onSave: () => void;
+  saveState: SaveState;
   title: string;
 };
 
-function LogPrototypePanel({
+function LogPanel({
   accent,
   actionLabel,
   children,
+  hasSavedLocalData = false,
   eyebrow,
+  onSave,
+  saveState,
   title,
-}: LogPrototypePanelProps) {
+}: LogPanelProps) {
   return (
     <div className="overflow-hidden rounded-card border border-soft-stone bg-warm-cream">
       <div className={`h-1.5 ${accent}`} />
@@ -209,9 +494,17 @@ function LogPrototypePanel({
             <h3 className="mt-1 font-heading text-xl font-semibold text-primary-text">
               {title}
             </h3>
+            <p className="mt-2 text-sm text-secondary-text">
+              {getSaveMessage(saveState, hasSavedLocalData)}
+            </p>
           </div>
-          <Button className="h-11 px-4" disabled variant="secondary">
-            {actionLabel}
+          <Button
+            className="h-11 px-4"
+            disabled={saveState === "saving"}
+            onClick={onSave}
+            variant="secondary"
+          >
+            {saveState === "saving" ? "Saving..." : actionLabel}
           </Button>
         </div>
         <div className="mt-4 grid gap-4">{children}</div>
@@ -223,6 +516,7 @@ function LogPrototypePanel({
 type MeterGridProps = {
   items: Array<{
     label: string;
+    onChange: (value: IntensityLevel) => void;
     value: IntensityLevel;
   }>;
 };
@@ -231,58 +525,138 @@ function MeterGrid({ items }: MeterGridProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {items.map((item) => (
-        <div className="rounded-2xl bg-surface p-3" key={item.label}>
+        <label className="rounded-2xl bg-surface p-3" key={item.label}>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-medium text-primary-text">{item.label}</p>
+            <span className="text-sm font-medium text-primary-text">
+              {item.label}
+            </span>
             <span className="text-sm font-semibold text-secondary-text">
               {item.value}/5
             </span>
           </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-soft-stone">
-            <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${item.value * 20}%` }}
-            />
-          </div>
-        </div>
+          <input
+            className="mt-3 w-full accent-primary"
+            max={5}
+            min={1}
+            onChange={(event) =>
+              item.onChange(toIntensityLevel(Number(event.target.value)))
+            }
+            type="range"
+            value={item.value}
+          />
+        </label>
       ))}
     </div>
   );
 }
 
-type ChipRowProps = {
+type ChipPickerProps<Value extends string> = {
   label: string;
-  values: string[];
+  onSelect: (value: Value) => void;
+  options: Array<{ label: string; value: Value }>;
+  selected: Value;
 };
 
-function ChipRow({ label, values }: ChipRowProps) {
+function ChipPicker<Value extends string>({
+  label,
+  onSelect,
+  options,
+  selected,
+}: ChipPickerProps<Value>) {
   return (
     <div>
       <p className="mb-2 text-sm font-medium text-secondary-text">{label}</p>
       <div className="flex flex-wrap gap-2">
-        {values.map((value) => (
-          <span
-            className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary"
-            key={value}
+        {options.map((option) => (
+          <button
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-sm font-medium",
+              selected === option.value
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-soft-stone bg-surface text-secondary-text",
+            )}
+            key={option.value}
+            onClick={() => onSelect(option.value)}
+            type="button"
           >
-            {value}
-          </span>
+            {option.label}
+          </button>
         ))}
       </div>
     </div>
   );
 }
 
-type KeyValueProps = {
+type MultiChipPickerProps<Value extends string> = {
   label: string;
+  onToggle: (value: Value) => void;
+  options: Array<{ label: string; value: Value }>;
+  selected: Value[];
+};
+
+function MultiChipPicker<Value extends string>({
+  label,
+  onToggle,
+  options,
+  selected,
+}: MultiChipPickerProps<Value>) {
+  return (
+    <div>
+      <p className="mb-2 text-sm font-medium text-secondary-text">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <button
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-sm font-medium",
+              selected.includes(option.value)
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-soft-stone bg-surface text-secondary-text",
+            )}
+            key={option.value}
+            onClick={() => onToggle(option.value)}
+            type="button"
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type ShortNoteProps = {
+  onChange: (value: string) => void;
+  placeholder: string;
   value: string;
 };
 
-function KeyValue({ label, value }: KeyValueProps) {
+function ShortNote({ onChange, placeholder, value }: ShortNoteProps) {
   return (
-    <div className="rounded-2xl bg-surface p-3">
-      <p className="text-sm text-secondary-text">{label}</p>
-      <p className="mt-1 font-medium text-primary-text">{value}</p>
-    </div>
+    <label className="grid gap-2 text-sm font-medium text-secondary-text">
+      Short note
+      <textarea
+        className="min-h-24 rounded-card border border-soft-stone bg-surface p-4 text-primary-text outline-none focus:border-primary"
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        value={value}
+      />
+    </label>
   );
+}
+
+function getSaveMessage(saveState: SaveState, hasSavedLocalData: boolean) {
+  if (saveState === "saving") return "Saving to local browser storage...";
+  if (saveState === "saved") return "Saved locally for today's pattern view.";
+  if (saveState === "error") return "Could not save locally. Try again.";
+  if (hasSavedLocalData) return "Loaded from local browser storage.";
+
+  return "Demo values are editable. Save to create a local log.";
+}
+
+function toIntensityLevel(value: number): IntensityLevel {
+  return Math.min(Math.max(Math.round(value), 1), 5) as IntensityLevel;
+}
+
+function isLocalRecord(record?: { id: string }) {
+  return record?.id.startsWith("local_") ?? false;
 }

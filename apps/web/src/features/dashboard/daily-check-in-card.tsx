@@ -58,7 +58,8 @@ const quickSymptoms: SymptomType[] = [
 type DailyCheckInCardProps = {
   checkIn?: DailyCheckIn;
   date: string;
-  onSaved?: () => void;
+  hasSavedLocalData?: boolean;
+  onSaved?: () => Promise<void> | void;
   symptoms: SymptomLog[];
   userId: string;
 };
@@ -66,6 +67,7 @@ type DailyCheckInCardProps = {
 export function DailyCheckInCard({
   checkIn,
   date,
+  hasSavedLocalData = false,
   onSaved,
   symptoms,
   userId,
@@ -190,7 +192,7 @@ export function DailyCheckInCard({
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-secondary-text">
-          {getSaveMessage(saveState)}
+          {getSaveMessage(saveState, hasSavedLocalData)}
         </p>
         <Button disabled={saveState === "saving"} onClick={saveCheckIn}>
           {saveState === "saving" ? "Saving..." : "Save check-in"}
@@ -269,7 +271,7 @@ export function DailyCheckInCard({
       );
 
       setSaveState("saved");
-      onSaved?.();
+      await onSaved?.();
     } catch {
       setSaveState("error");
     }
@@ -391,12 +393,16 @@ function buildSymptomId({
   return `symptom_${userId}_${date}_${symptom}`;
 }
 
-function getSaveMessage(saveState: "idle" | "saving" | "saved" | "error") {
+function getSaveMessage(
+  saveState: "idle" | "saving" | "saved" | "error",
+  hasSavedLocalData: boolean,
+) {
   if (saveState === "saving") return "Saving privately on this device...";
   if (saveState === "saved") return "Saved locally. No cloud sync or sharing.";
   if (saveState === "error") {
     return "Could not save locally. Check browser storage permissions.";
   }
+  if (hasSavedLocalData) return "Loaded from local browser storage.";
 
-  return "Saved data stays local in this browser.";
+  return "Demo values are editable. Save to create a local check-in.";
 }
