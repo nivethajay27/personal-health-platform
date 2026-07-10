@@ -144,7 +144,7 @@ export function PatternVisualizationsCard({
       </div>
 
       <div className="mt-6 grid gap-5">
-        <div className="rounded-card border border-soft-stone bg-warm-cream p-4">
+        <div className="min-w-0 overflow-hidden rounded-card border border-soft-stone bg-warm-cream p-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h3 className="font-heading text-xl font-semibold text-primary-text">
@@ -160,7 +160,7 @@ export function PatternVisualizationsCard({
             </span>
           </div>
 
-          <div className="mt-4 h-56">
+          <div className="mt-4 h-56 overflow-hidden">
             <ResponsiveContainer height="100%" width="100%">
               <LineChart
                 data={energyTrend}
@@ -202,8 +202,8 @@ export function PatternVisualizationsCard({
           </div>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-card border border-soft-stone bg-warm-cream p-4">
+        <div className="grid min-w-0 gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+          <div className="min-w-0 overflow-hidden rounded-card border border-soft-stone bg-warm-cream p-4">
             <h3 className="font-heading text-xl font-semibold text-primary-text">
               Workout intensity by phase
             </h3>
@@ -211,7 +211,7 @@ export function PatternVisualizationsCard({
               Average logged workout intensity grouped by estimated phase.
             </p>
 
-            <div className="mt-4 h-52">
+            <div className="mt-4 h-52 overflow-hidden">
               <ResponsiveContainer height="100%" width="100%">
                 <BarChart
                   data={workoutIntensityByPhase}
@@ -251,7 +251,7 @@ export function PatternVisualizationsCard({
             </div>
           </div>
 
-          <div className="rounded-card border border-soft-stone bg-warm-cream p-4">
+          <div className="min-w-0 overflow-hidden rounded-card border border-soft-stone bg-warm-cream p-4">
             <h3 className="font-heading text-xl font-semibold text-primary-text">
               Symptom heatmap
             </h3>
@@ -260,7 +260,7 @@ export function PatternVisualizationsCard({
               colors.
             </p>
 
-            <div className="mt-5 overflow-x-auto">
+            <div className="mt-5 max-w-full overflow-x-auto">
               <div className="min-w-[420px]">
                 <div className="grid grid-cols-[120px_repeat(4,minmax(64px,1fr))] gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-secondary-text">
                   <span>Symptom</span>

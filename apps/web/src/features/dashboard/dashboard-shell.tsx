@@ -37,7 +37,7 @@ export function DashboardShell() {
   const [localSymptoms, setLocalSymptoms] = useState<SymptomLog[]>([]);
   const [localDataStatus, setLocalDataStatus] = useState<
     "loading" | "local" | "demo" | "error"
-  >("loading");
+  >("demo");
   const [localDataRevision, setLocalDataRevision] = useState(0);
   const currentCycle =
     getCurrentCycle(demoDataset.cycles, DASHBOARD_DATE) ??
@@ -107,7 +107,7 @@ export function DashboardShell() {
           : "Demo mode";
 
   useEffect(() => {
-    void refreshLocalDashboardData();
+    void refreshLocalDashboardData({ showLoading: false });
   }, []);
 
   const keyMetrics = [
@@ -145,7 +145,10 @@ export function DashboardShell() {
             userName={demoDataset.user.displayName}
           />
 
-          <Badge className="w-fit" tone={localDataStatus === "local" ? "primary" : "neutral"}>
+          <Badge
+            className="h-fit w-fit self-start"
+            tone={localDataStatus === "local" ? "primary" : "neutral"}
+          >
             {localDataBadge}
           </Badge>
 
@@ -243,8 +246,14 @@ export function DashboardShell() {
     </AppShell>
   );
 
-  async function refreshLocalDashboardData() {
-    setLocalDataStatus("loading");
+  async function refreshLocalDashboardData({
+    showLoading = true,
+  }: {
+    showLoading?: boolean;
+  } = {}) {
+    if (showLoading) {
+      setLocalDataStatus("loading");
+    }
 
     try {
       const [savedCheckIns, savedSymptoms] = await Promise.all([

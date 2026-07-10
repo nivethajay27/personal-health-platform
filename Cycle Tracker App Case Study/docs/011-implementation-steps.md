@@ -158,3 +158,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Refreshed local record counts after check-in saves.
 - Refreshed dashboard data after local delete actions.
 - Reason: saving or deleting local data should update the whole dashboard consistently.
+
+## Step 23: Add Repo Screenshots
+
+- Added desktop dashboard screenshots under `docs/screenshots`.
+- Linked screenshots from the main README.
+- Fixed small responsive overflow and badge sizing issues found during capture.
+- Reason: portfolio reviewers should quickly understand the app without running it locally.

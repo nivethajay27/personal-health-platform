@@ -37,6 +37,16 @@ Implemented so far:
 - Dashboard sync between saved local data and demo fallback data
 - Case study documentation and implementation notes
 
+## Screenshots
+
+### Dashboard First Screen
+
+![Cycle Companion dashboard first screen](./docs/screenshots/dashboard-desktop.png)
+
+### Dashboard Extended View
+
+![Cycle Companion dashboard extended view](./docs/screenshots/dashboard-full-page.png)
+
 ## Tech Stack
 
 - Framework: Next.js

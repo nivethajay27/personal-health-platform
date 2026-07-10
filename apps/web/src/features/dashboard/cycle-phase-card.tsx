@@ -37,6 +37,12 @@ export function CyclePhaseCard({
     (window) => window.phase === phase,
   );
   const dayMarkerPosition = `${Math.min(Math.max((cycleDayNumber / 28) * 100, 0), 100)}%`;
+  const dayMarkerLabelClass =
+    cycleDayNumber >= 26
+      ? "right-0 translate-x-0"
+      : cycleDayNumber <= 2
+        ? "left-0 translate-x-0"
+        : "left-1/2 -translate-x-1/2";
 
   return (
     <Card className="overflow-hidden p-0">
@@ -61,7 +67,7 @@ export function CyclePhaseCard({
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-sm text-secondary-text">
+          <div className="flex flex-col gap-1 text-sm text-secondary-text sm:flex-row sm:items-center sm:justify-between">
             <span>Cycle phase map</span>
             <span>{Math.round(phaseProgress * 100)}% through phase</span>
           </div>
@@ -71,7 +77,12 @@ export function CyclePhaseCard({
               className="absolute top-0 h-6 w-px bg-primary-text"
               style={{ left: dayMarkerPosition }}
             >
-              <span className="absolute left-1/2 top-[-1.5rem] -translate-x-1/2 whitespace-nowrap rounded-full bg-primary-text px-2 py-1 text-xs font-semibold text-white">
+              <span
+                className={cn(
+                  "absolute top-[-1.5rem] whitespace-nowrap rounded-full bg-primary-text px-2 py-1 text-xs font-semibold text-white",
+                  dayMarkerLabelClass,
+                )}
+              >
                 Day {cycleDayNumber}
               </span>
             </div>
