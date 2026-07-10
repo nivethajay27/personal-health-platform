@@ -18,6 +18,12 @@ Food, workout, recovery, insights, and pattern-focused dashboard sections.
 
 ![Cycle Companion dashboard extended view](./docs/screenshots/dashboard-extended-view.png)
 
+### Pattern Viewer
+
+Interactive filters for energy, symptoms, workout, and recovery trends.
+
+![Cycle Companion pattern viewer](./docs/screenshots/dashboard-pattern-viewer.png)
+
 ## What Is Built
 
 - Dashboard-first Next.js app
@@ -26,6 +32,7 @@ Food, workout, recovery, insights, and pattern-focused dashboard sections.
 - Food, workout, and recovery logging
 - Rule-based insights
 - Recharts pattern visualizations
+- Interactive chart filters
 - IndexedDB local-first storage
 - Export/delete local data controls
 - Dedicated privacy/settings page

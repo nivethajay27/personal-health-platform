@@ -131,6 +131,15 @@ export function DashboardShell() {
       }),
     [currentCycle.id, localWorkouts],
   );
+  const recoveryLogsForCurrentCycle = useMemo(
+    () =>
+      mergeLocalRecoveryLogsForCycle({
+        cycleId: currentCycle.id,
+        demoRecoveryLogs: demoDataset.recoveryLogs,
+        localRecoveryLogs,
+      }),
+    [currentCycle.id, localRecoveryLogs],
+  );
   const localDataBadge =
     localDataStatus === "local"
       ? "Using local data"
@@ -287,7 +296,15 @@ export function DashboardShell() {
         cycleDays={demoDataset.cycleDays.filter(
           (day) => day.cycleId === currentCycle.id,
         )}
+        dataMode={localDataStatus}
         dailyCheckIns={dailyCheckInsForCurrentCycle}
+        localRecordCounts={{
+          checkIns: localCheckIns.length,
+          recovery: localRecoveryLogs.length,
+          symptoms: localSymptoms.length,
+          workouts: localWorkouts.length,
+        }}
+        recoveryLogs={recoveryLogsForCurrentCycle}
         symptoms={symptomsForCurrentCycle}
         workouts={workoutsForCurrentCycle}
       />
@@ -445,4 +462,29 @@ function mergeLocalWorkoutsForCycle({
   return demoWorkouts
     .filter((workout) => cycleDates.has(workout.date))
     .map((workout) => localByDate.get(workout.date) ?? workout);
+}
+
+function mergeLocalRecoveryLogsForCycle({
+  cycleId,
+  demoRecoveryLogs,
+  localRecoveryLogs,
+}: {
+  cycleId: string;
+  demoRecoveryLogs: RecoveryLog[];
+  localRecoveryLogs: RecoveryLog[];
+}) {
+  const cycleDates = new Set(
+    demoDataset.cycleDays
+      .filter((day) => day.cycleId === cycleId)
+      .map((day) => day.date),
+  );
+  const localByDate = new Map(
+    localRecoveryLogs
+      .filter((recovery) => cycleDates.has(recovery.date))
+      .map((recovery) => [recovery.date, recovery]),
+  );
+
+  return demoRecoveryLogs
+    .filter((recovery) => cycleDates.has(recovery.date))
+    .map((recovery) => localByDate.get(recovery.date) ?? recovery);
 }

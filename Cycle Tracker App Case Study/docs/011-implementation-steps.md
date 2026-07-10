@@ -186,3 +186,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Disabled export/delete controls when no local data exists.
 - Improved local data count, save, and privacy preference status messages.
 - Reason: real products need calm feedback when data is missing, saving, or unavailable.
+
+## Step 27: Add Chart Interactions And Pattern States
+
+- Added chart filters for energy, symptoms, workout, and recovery views.
+- Added chart-level summaries, data-source labels, and local coverage notes.
+- Added empty states for charts with too little data.
+- Reason: visualizations should help users inspect patterns, not just decorate the dashboard.
