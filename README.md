@@ -4,6 +4,8 @@ Privacy-first wellness dashboard for tracking patterns across cycle phase, food,
 
 This is a portfolio project focused on polished product design, local-first data handling, responsible health-adjacent UX, and clear technical architecture.
 
+Live demo: coming soon.
+
 ## Screenshots
 
 ### Dashboard First Screen
@@ -77,3 +79,4 @@ Deeper docs:
 - [Case Study](./Cycle%20Tracker%20App%20Case%20Study/README.md)
 - [Implementation Steps](./Cycle%20Tracker%20App%20Case%20Study/docs/011-implementation-steps.md)
 - [Technical Architecture](./Cycle%20Tracker%20App%20Case%20Study/docs/009-technical-architecture.md)
+- [Deployment Notes](./docs/deployment.md)

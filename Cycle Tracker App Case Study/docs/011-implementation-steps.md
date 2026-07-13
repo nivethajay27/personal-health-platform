@@ -193,3 +193,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Added chart-level summaries, data-source labels, and local coverage notes.
 - Added empty states for charts with too little data.
 - Reason: visualizations should help users inspect patterns, not just decorate the dashboard.
+
+## Step 28: Deployment Prep
+
+- Added concise Vercel deployment notes.
+- Added live demo placeholder to the public README.
+- Added Open Graph and Twitter metadata with a dashboard preview image.
+- Reason: the project should be easy to deploy, share, and review from a live URL.
