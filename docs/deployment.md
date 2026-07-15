@@ -2,6 +2,8 @@
 
 Target: Vercel free tier.
 
+Production URL: https://personal-health-platform.vercel.app
+
 ## Vercel Settings
 
 - Root directory: `apps/web`
@@ -14,7 +16,7 @@ Target: Vercel free tier.
 Optional:
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://your-vercel-url.vercel.app
+NEXT_PUBLIC_SITE_URL=https://personal-health-platform.vercel.app
 ```
 
 Use the final production URL after the first deployment.

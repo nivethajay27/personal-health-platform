@@ -51,7 +51,7 @@ export function AppShell({ activeHref = "/", children }: AppShellProps) {
               </ul>
             </nav>
 
-            <Badge>Planning build</Badge>
+            <Badge>Private beta</Badge>
           </div>
         </header>
 

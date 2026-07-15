@@ -98,9 +98,9 @@ export function DailyCheckInCard({
     <Card>
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <SectionHeader
-          description="A fast demo flow for logging how today feels without turning the habit into paperwork."
+          description="A fast flow for logging how today feels without turning the habit into paperwork."
           eyebrow="Daily check-in"
-          title="Log today's body signals"
+          title="How are you feeling today?"
         />
         <Badge tone="primary">2 min flow</Badge>
       </div>
@@ -404,5 +404,5 @@ function getSaveMessage(
   }
   if (hasSavedLocalData) return "Loaded from local browser storage.";
 
-  return "Demo values are editable. Save to create a local check-in.";
+  return "Starter values are editable. Save to create your check-in.";
 }

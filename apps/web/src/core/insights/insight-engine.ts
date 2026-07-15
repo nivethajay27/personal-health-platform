@@ -140,7 +140,7 @@ function buildEnergyPeakInsight({
     userId,
     title: "Energy appears strongest near ovulation",
     message:
-      "Demo logs show energy and workout intensity trending higher around ovulation days. This can help users plan more demanding movement when it feels supportive.",
+      "Starter history shows energy and workout intensity trending higher around ovulation days. This can help users plan more demanding movement when it feels supportive.",
     category: "cycle",
     priority: "medium",
     sources: ["cycle", "daily_check_in", "workouts"],
@@ -224,7 +224,7 @@ function buildLowSleepEnergyInsight({
     userId,
     title: "Lower sleep often appears with lower energy",
     message:
-      "Days under 7 hours of sleep often appear near lower energy check-ins in the demo data. This is a pattern cue, not a diagnosis or treatment recommendation.",
+      "Days under 7 hours of sleep often appear near lower energy check-ins in the starter data. This is a pattern cue, not a diagnosis or treatment recommendation.",
     category: "recovery",
     priority: "medium",
     sources: ["daily_check_in", "recovery"],

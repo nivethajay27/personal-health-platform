@@ -20,6 +20,7 @@ const phaseClasses: Record<CyclePhase, string> = {
 
 type CyclePhaseCardProps = {
   cycleDayNumber: number;
+  greeting: string;
   phase: CyclePhase;
   phaseProgress: number;
   predictionConfidence: PredictionConfidence;
@@ -28,6 +29,7 @@ type CyclePhaseCardProps = {
 
 export function CyclePhaseCard({
   cycleDayNumber,
+  greeting,
   phase,
   phaseProgress,
   predictionConfidence,
@@ -50,12 +52,16 @@ export function CyclePhaseCard({
       <div className="space-y-8 p-5 sm:p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <Badge tone="secondary">Today</Badge>
+            <Badge tone="secondary">Today&apos;s check-in</Badge>
             <h1 className="mt-3 font-heading text-4xl font-semibold leading-tight text-primary-text sm:text-5xl">
-              {phaseLabels[phase]} phase
+              {greeting}, {userName}.
             </h1>
             <p className="mt-4 max-w-2xl leading-8 text-secondary-text">
-              Day {cycleDayNumber} of {userName}&apos;s demo cycle. This is{" "}
+              You&apos;re on day {cycleDayNumber}. Your body signals suggest a{" "}
+              <span className="font-medium text-primary-text">
+                {phaseLabels[phase].toLowerCase()} phase
+              </span>{" "}
+              pattern today. This is{" "}
               <span className="font-medium text-primary-text">
                 {predictionConfidence}
               </span>{" "}
@@ -63,7 +69,7 @@ export function CyclePhaseCard({
             </p>
           </div>
 
-          <Badge>{predictionConfidence}</Badge>
+          <Badge>{phaseLabels[phase]} phase</Badge>
         </div>
 
         <div className="space-y-4">

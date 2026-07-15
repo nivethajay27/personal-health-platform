@@ -181,5 +181,5 @@ function getStatusMessage(saveState: SaveState, updatedAt: string) {
     return "Privacy preferences are loaded from this browser.";
   }
 
-  return "Default privacy preferences are active for this demo.";
+  return "Default privacy preferences are active for this app.";
 }

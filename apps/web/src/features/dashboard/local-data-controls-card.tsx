@@ -199,11 +199,11 @@ function getStateMessage({
   state: LocalDataState;
 }) {
   if (confirmClear) {
-    return "Click confirm delete to remove all local browser data for this demo.";
+    return "Click confirm delete to remove all local browser data for this app.";
   }
   if (state === "loading") return "Checking local browser storage...";
   if (!hasCounts) return "Local data counts are loading.";
-  if (!hasLocalData) return "No local logs saved yet. Demo data is still shown.";
+  if (!hasLocalData) return "No local logs saved yet. Starter data is still shown.";
   if (state === "ready") return "Local data counts are up to date.";
   if (state === "exported") return "Export created from local browser data.";
   if (state === "cleared") return "Local browser data has been deleted.";

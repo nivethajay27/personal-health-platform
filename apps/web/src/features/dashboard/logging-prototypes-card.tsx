@@ -650,7 +650,7 @@ function getSaveMessage(saveState: SaveState, hasSavedLocalData: boolean) {
   if (saveState === "error") return "Could not save locally. Try again.";
   if (hasSavedLocalData) return "Loaded from local browser storage.";
 
-  return "Demo values are editable. Save to create a local log.";
+  return "Starter values are editable. Save to create your log.";
 }
 
 function toIntensityLevel(value: number): IntensityLevel {

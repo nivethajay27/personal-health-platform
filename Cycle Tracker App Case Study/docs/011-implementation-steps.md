@@ -200,3 +200,17 @@ This file tracks the actual build steps in a simple, concise way.
 - Added live demo placeholder to the public README.
 - Added Open Graph and Twitter metadata with a dashboard preview image.
 - Reason: the project should be easy to deploy, share, and review from a live URL.
+
+## Step 29: Deploy Live Demo
+
+- Deployed the app to Vercel.
+- Added the production URL to the README and deployment notes.
+- Verified the live URL returns successfully.
+- Reason: reviewers should be able to open the app without cloning the repo.
+
+## Step 30: Make Dashboard Copy Feel App-Like
+
+- Replaced demo-cycle hero copy with a time-aware greeting.
+- Reframed starter data as user-facing baseline copy.
+- Updated the daily check-in prompt to ask how the user feels today.
+- Reason: the dashboard should feel like a real wellness app, not a static demo.

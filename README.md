@@ -4,7 +4,7 @@ Privacy-first wellness dashboard for tracking patterns across cycle phase, food,
 
 This is a portfolio project focused on polished product design, local-first data handling, responsible health-adjacent UX, and clear technical architecture.
 
-Live demo: coming soon.
+Live demo: https://personal-health-platform.vercel.app
 
 ## Screenshots
 
@@ -71,7 +71,7 @@ npm run build
 ## Project Notes
 
 - Sensitive wellness data stays local-first.
-- Demo data is separate from local user logs.
+- Starter data is separate from local user logs.
 - The app avoids fertility prediction, diagnosis, treatment advice, and medical claims.
 
 Deeper docs:

@@ -41,6 +41,7 @@ function formatInsightCategory(insight: Insight) {
 }
 
 export function DashboardShell() {
+  const [dayGreeting] = useState(getTimeBasedGreeting);
   const [localCheckIns, setLocalCheckIns] = useState<DailyCheckIn[]>([]);
   const [localMeals, setLocalMeals] = useState<MealLog[]>([]);
   const [localRecoveryLogs, setLocalRecoveryLogs] = useState<RecoveryLog[]>([]);
@@ -144,18 +145,18 @@ export function DashboardShell() {
     localDataStatus === "local"
       ? "Using local data"
       : localDataStatus === "error"
-        ? "Demo mode"
+        ? "Starter mode"
         : localDataStatus === "loading"
           ? "Checking local data"
-          : "Demo mode";
+          : "Starter mode";
   const localDataMessage =
     localDataStatus === "local"
       ? "Saved browser data is blended into today's dashboard."
       : localDataStatus === "error"
-        ? "Local storage is unavailable, so the dashboard is showing demo data."
+        ? "Local storage is unavailable, so the dashboard is showing starter data."
         : localDataStatus === "loading"
           ? "Checking this browser for saved logs."
-          : "Demo data is shown until you save local logs.";
+          : "Starter data is shown until you save your own logs.";
 
   useEffect(() => {
     void refreshLocalDashboardData({ showLoading: false });
@@ -193,6 +194,7 @@ export function DashboardShell() {
         <div className="grid gap-6">
           <CyclePhaseCard
             cycleDayNumber={cycleSummary.cycleDayNumber}
+            greeting={dayGreeting}
             phase={currentPhase}
             phaseProgress={cycleSummary.phaseProgress}
             predictionConfidence={cycleSummary.predictionConfidence}
@@ -268,7 +270,7 @@ export function DashboardShell() {
 
         <Card id="insights">
           <SectionHeader
-            description="Generated from rule checks across cycle, food, workout, symptom, and recovery demo data."
+            description="Generated from rule checks across cycle, food, workout, symptom, and recovery patterns."
             eyebrow="Patterns"
             title="Personalized insights"
           />
@@ -382,6 +384,15 @@ export function DashboardShell() {
     await refreshLocalDashboardData();
     setLocalDataRevision((revision) => revision + 1);
   }
+}
+
+function getTimeBasedGreeting() {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+
+  return "Good evening";
 }
 
 function mergeLocalCheckInsForCycle({
