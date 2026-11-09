@@ -214,3 +214,9 @@ This file tracks the actual build steps in a simple, concise way.
 - Reframed starter data as user-facing baseline copy.
 - Updated the daily check-in prompt to ask how the user feels today.
 - Reason: the dashboard should feel like a real wellness app, not a static demo.
+
+## Step 31: Add Core Logic Tests
+
+- Added automated tests for cycle logic, rule-based insights, local data export/delete, and the dashboard hero.
+- Added a single `npm test` command for reviewers and future development.
+- Reason: sensitive data and user-facing predictions need reliable core behavior.
