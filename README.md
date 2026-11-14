@@ -47,6 +47,7 @@ Interactive filters for energy, symptoms, workout, and recovery trends.
 - Tailwind CSS
 - Recharts
 - IndexedDB
+- Expo + React Native mobile foundation
 
 Future mobile direction: Expo + React Native.
 

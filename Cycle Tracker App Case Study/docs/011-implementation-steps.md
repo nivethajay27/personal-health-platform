@@ -220,3 +220,11 @@ This file tracks the actual build steps in a simple, concise way.
 - Added automated tests for cycle logic, rule-based insights, local data export/delete, and the dashboard hero.
 - Added a single `npm test` command for reviewers and future development.
 - Reason: sensitive data and user-facing predictions need reliable core behavior.
+
+## Step 32: Create Mobile Foundation
+
+- Created `apps/mobile` with Expo SDK 58, React Native, TypeScript, and Expo Router.
+- Added Cycle Companion app identity, light-only configuration, and a deep-link scheme.
+- Added Expo lint configuration and resolved generated web-template typing gaps.
+- Kept the web app separate while preparing a native workspace for shared logic later.
+- Reason: native development can progress without disrupting the deployed web portfolio app.
