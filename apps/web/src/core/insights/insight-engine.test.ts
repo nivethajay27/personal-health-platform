@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRuleBasedInsights } from "@/core/insights";
+import { buildRuleBasedInsights } from "@cycle-companion/core/insights";
 import {
   demoCycleDays,
   demoDailyCheckIns,

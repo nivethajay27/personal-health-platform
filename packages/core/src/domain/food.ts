@@ -1,9 +1,9 @@
-import type { CyclePhase } from "@/domain/cycle";
+import type { CyclePhase } from "./cycle";
 import type {
   ISODateString,
   ISODateTimeString,
   IntensityLevel,
-} from "@/domain/common";
+} from "./common";
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 

@@ -23,7 +23,7 @@ import type {
   SymptomLog,
   SymptomType,
   WorkoutLog,
-} from "@/domain";
+} from "@cycle-companion/core";
 import { cn } from "@/lib/utils";
 
 type ChartView = "energy" | "symptoms" | "workouts" | "recovery";

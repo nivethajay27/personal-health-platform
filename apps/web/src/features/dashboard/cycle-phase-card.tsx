@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { DEFAULT_PHASE_WINDOWS } from "@/core";
-import type { CyclePhase, PredictionConfidence } from "@/domain";
+import { DEFAULT_PHASE_WINDOWS } from "@cycle-companion/core";
+import type { CyclePhase, PredictionConfidence } from "@cycle-companion/core";
 import { cn } from "@/lib/utils";
 
 const phaseLabels: Record<CyclePhase, string> = {

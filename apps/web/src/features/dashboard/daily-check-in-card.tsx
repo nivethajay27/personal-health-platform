@@ -13,7 +13,7 @@ import type {
   Mood,
   SymptomLog,
   SymptomType,
-} from "@/domain";
+} from "@cycle-companion/core";
 import { cn } from "@/lib/utils";
 import { deleteLocalRecord, localDb } from "@/storage";
 

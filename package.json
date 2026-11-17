@@ -1,0 +1,14 @@
+{
+  "name": "cycle-companion",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test:web": "npm run test --workspace=web",
+    "lint:web": "npm run lint --workspace=web",
+    "lint:mobile": "npm run lint --workspace=cycle-companion-mobile"
+  }
+}

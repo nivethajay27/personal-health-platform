@@ -1,0 +1,12 @@
+{
+  "name": "@cycle-companion/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cycle": "./src/cycle/index.ts",
+    "./domain": "./src/domain/index.ts",
+    "./insights": "./src/insights/index.ts"
+  }
+}

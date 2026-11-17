@@ -1,7 +1,7 @@
 import "fake-indexeddb/auto";
 import { afterEach, describe, expect, it } from "vitest";
 import { localDb } from "@/storage";
-import type { DailyCheckIn, MealLog } from "@/domain";
+import type { DailyCheckIn, MealLog } from "@cycle-companion/core";
 
 const checkIn: DailyCheckIn = {
   id: "checkin_001",

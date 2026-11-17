@@ -1,4 +1,4 @@
-import type { ISODateTimeString } from "@/domain/common";
+import type { ISODateTimeString } from "./common";
 
 export type CloudSyncPreference = "disabled" | "enabled";
 

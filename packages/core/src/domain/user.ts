@@ -1,4 +1,4 @@
-import type { ISODateString } from "@/domain/common";
+import type { ISODateString } from "./common";
 
 export type FitnessGoal =
   | "general_health"

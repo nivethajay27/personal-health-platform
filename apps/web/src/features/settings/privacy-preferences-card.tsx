@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { demoDataset } from "@/data";
-import type { PrivacySettings } from "@/domain";
+import type { PrivacySettings } from "@cycle-companion/core";
 import { cn } from "@/lib/utils";
 import { localDb } from "@/storage";
 

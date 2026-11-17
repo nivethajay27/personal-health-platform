@@ -9,7 +9,7 @@ import type {
   SymptomLog,
   WorkoutLog,
   WorkoutType,
-} from "@/domain";
+} from "../domain";
 
 type BuildRuleBasedInsightsInput = {
   cycleDays: CycleDay[];

@@ -16,8 +16,8 @@ import type {
   UserProfile,
   WorkoutLog,
   WorkoutType,
-} from "@/domain";
-import { buildRuleBasedInsights } from "@/core";
+} from "@cycle-companion/core";
+import { buildRuleBasedInsights } from "@cycle-companion/core";
 
 const DEMO_USER_ID = "user_demo_001";
 const DEMO_NOW = "2026-07-09T09:00:00.000Z";

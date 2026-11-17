@@ -2,7 +2,7 @@ import type {
   ISODateString,
   ISODateTimeString,
   IntensityLevel,
-} from "@/domain/common";
+} from "./common";
 
 export type SymptomType =
   | "cramps"

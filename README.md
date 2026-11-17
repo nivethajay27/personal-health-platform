@@ -48,15 +48,17 @@ Interactive filters for energy, symptoms, workout, and recovery trends.
 - Recharts
 - IndexedDB
 - Expo + React Native mobile foundation
+- Shared TypeScript cycle and insight engine
 
 Future mobile direction: Expo + React Native.
+
+The web and mobile apps share product models, cycle calculations, and rule-based insights through `packages/core`.
 
 ## Run Locally
 
 ```bash
-cd apps/web
 npm install
-npm run dev
+npm run dev --workspace=web
 ```
 
 Open `http://localhost:3000`.
@@ -64,9 +66,10 @@ Open `http://localhost:3000`.
 Useful checks:
 
 ```bash
-npm run lint
-npx tsc --noEmit
-npm run build
+npm run lint --workspace=web
+npm run build --workspace=web
+npm run lint --workspace=cycle-companion-mobile
+npm exec --workspace=cycle-companion-mobile -- tsc --noEmit
 ```
 
 ## Project Notes

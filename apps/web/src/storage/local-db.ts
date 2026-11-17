@@ -9,7 +9,7 @@ import type {
   SymptomLog,
   UserProfile,
   WorkoutLog,
-} from "@/domain";
+} from "@cycle-companion/core";
 
 export const LOCAL_DB_NAME = "cycle-companion-local";
 export const LOCAL_DB_VERSION = 1;

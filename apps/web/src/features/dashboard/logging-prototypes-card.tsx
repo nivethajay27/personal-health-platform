@@ -14,7 +14,7 @@ import type {
   RecoveryLog,
   WorkoutLog,
   WorkoutType,
-} from "@/domain";
+} from "@cycle-companion/core";
 import { cn } from "@/lib/utils";
 import { localDb } from "@/storage";
 

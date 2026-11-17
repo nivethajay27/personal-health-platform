@@ -6,8 +6,8 @@ import {
   getCurrentCycle,
   getCycleSummary,
   getPhaseProgress,
-} from "@/core/cycle";
-import type { Cycle } from "@/domain";
+} from "@cycle-companion/core/cycle";
+import type { Cycle } from "@cycle-companion/core";
 
 const cycle: Cycle = {
   id: "cycle_001",

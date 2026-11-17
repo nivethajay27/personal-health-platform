@@ -1,5 +1,5 @@
-import type { ISODateString, TrendDirection } from "@/domain/common";
-import type { CyclePhase } from "@/domain/cycle";
+import type { ISODateString, TrendDirection } from "./common";
+import type { CyclePhase } from "./cycle";
 
 export type InsightCategory =
   | "cycle"

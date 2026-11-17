@@ -5,7 +5,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
-import { buildCycleDay, getCurrentCycle, getCycleSummary } from "@/core";
+import { buildCycleDay, getCurrentCycle, getCycleSummary } from "@cycle-companion/core";
 import { demoDataset } from "@/data";
 import { CyclePhaseCard } from "@/features/dashboard/cycle-phase-card";
 import { DailyCheckInCard } from "@/features/dashboard/daily-check-in-card";
@@ -20,7 +20,7 @@ import type {
   RecoveryLog,
   SymptomLog,
   WorkoutLog,
-} from "@/domain";
+} from "@cycle-companion/core";
 import { localDb } from "@/storage";
 
 const DASHBOARD_DATE = "2026-07-09";

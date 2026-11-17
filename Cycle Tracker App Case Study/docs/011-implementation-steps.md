@@ -228,3 +228,17 @@ This file tracks the actual build steps in a simple, concise way.
 - Added Expo lint configuration and resolved generated web-template typing gaps.
 - Kept the web app separate while preparing a native workspace for shared logic later.
 - Reason: native development can progress without disrupting the deployed web portfolio app.
+
+## Step 33: Create Shared Product Core
+
+- Moved domain models, cycle calculations, and rule-based insights into `packages/core`.
+- Configured npm workspaces so web and mobile depend on the same core package.
+- Kept UI, demo data, and local storage inside their respective apps.
+- Reason: one source of truth prevents web and mobile health-pattern logic from drifting apart.
+
+## Step 34: Build Mobile Home
+
+- Replaced Expo starter screens with Home and Insights tabs.
+- Built a mobile-first cycle summary, daily check-in preview, focus card, and privacy note.
+- Reused the shared cycle calculation for the displayed day and phase.
+- Reason: the native app now communicates the product value before mobile storage and forms are added.

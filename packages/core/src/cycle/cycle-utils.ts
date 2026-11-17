@@ -4,7 +4,7 @@ import type {
   CyclePhase,
   PhaseWindow,
   PredictionConfidence,
-} from "@/domain";
+} from "../domain";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
