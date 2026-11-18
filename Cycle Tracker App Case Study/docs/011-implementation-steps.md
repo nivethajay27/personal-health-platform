@@ -242,3 +242,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Built a mobile-first cycle summary, daily check-in preview, focus card, and privacy note.
 - Reused the shared cycle calculation for the displayed day and phase.
 - Reason: the native app now communicates the product value before mobile storage and forms are added.
+
+## Step 35: Add Mobile Local Storage
+
+- Added Expo SQLite and a small repository for daily energy check-ins.
+- Home now loads and saves one energy value per user and day on the device.
+- Added loading, saving, saved, and error feedback without cloud sync.
+- Reason: the first mobile interaction now persists while protecting privacy.

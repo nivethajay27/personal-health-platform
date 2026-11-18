@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { buildCycleDay, getCycleSummary } from '@/core';
+import { loadEnergyCheckIn, saveEnergyCheckIn } from '@/storage/mobile-database';
 
 const colors = {
   background: '#FCFBF8',
@@ -30,6 +31,8 @@ const demoCycle = {
 const cycleSummary = getCycleSummary(
   buildCycleDay({ cycle: demoCycle, targetDate: '2026-07-05' }),
 );
+const CHECK_IN_DATE = '2026-07-05';
+const USER_ID = 'mobile_demo_user';
 
 const energyOptions = [
   { label: 'Low', value: 2 },
@@ -49,13 +52,68 @@ function formatPhase(phase: string) {
   return `${phase.slice(0, 1).toUpperCase()}${phase.slice(1)}`;
 }
 
+function getCheckInMessage({
+  currentEnergyLabel,
+  storageState,
+}: {
+  currentEnergyLabel?: string;
+  storageState: 'error' | 'loading' | 'ready' | 'saving';
+}) {
+  if (storageState === 'loading') return 'Loading your check-in from this device.';
+  if (storageState === 'saving') return 'Saving privately on this device.';
+  if (storageState === 'error') return 'Your check-in could not be saved locally. Try again.';
+  if (currentEnergyLabel) return `${currentEnergyLabel} energy saved privately on this device.`;
+
+  return 'Choose the option that feels closest today.';
+}
+
 export function MobileHomeScreen() {
   const [energy, setEnergy] = useState<number | null>(null);
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const [storageState, setStorageState] = useState<'error' | 'loading' | 'ready' | 'saving'>('loading');
   const currentEnergyLabel = useMemo(
     () => energyOptions.find((option) => option.value === energy)?.label,
     [energy],
   );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void loadEnergyCheckIn({ date: CHECK_IN_DATE, userId: USER_ID })
+      .then((checkIn) => {
+        if (!isMounted) return;
+
+        setEnergy(checkIn?.energyLevel ?? null);
+        setStorageState('ready');
+      })
+      .catch(() => {
+        if (isMounted) setStorageState('error');
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  async function handleEnergySelection(energyLevel: number) {
+    if (storageState === 'saving') return;
+
+    const previousEnergy = energy;
+    setEnergy(energyLevel);
+    setStorageState('saving');
+
+    try {
+      await saveEnergyCheckIn({
+        date: CHECK_IN_DATE,
+        energyLevel,
+        userId: USER_ID,
+      });
+      setStorageState('ready');
+    } catch {
+      setEnergy(previousEnergy);
+      setStorageState('error');
+    }
+  }
 
   return (
     <View style={styles.screen}>
@@ -134,7 +192,8 @@ export function MobileHomeScreen() {
                       accessibilityRole="button"
                       accessibilityState={{ selected }}
                       key={option.label}
-                      onPress={() => setEnergy(option.value)}
+                      disabled={storageState === 'saving'}
+                      onPress={() => void handleEnergySelection(option.value)}
                       style={({ pressed }) => [
                         styles.energyOption,
                         selected && styles.energyOptionSelected,
@@ -148,9 +207,7 @@ export function MobileHomeScreen() {
                 })}
               </View>
               <Text style={styles.checkInHint}>
-                {currentEnergyLabel
-                  ? `${currentEnergyLabel} energy selected for this preview.`
-                  : 'Choose the option that feels closest today.'}
+                {getCheckInMessage({ currentEnergyLabel, storageState })}
               </Text>
             </View>
           ) : (
