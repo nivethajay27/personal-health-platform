@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { CyclePhase } from '@/core';
+import type { CyclePhase, Insight } from '@/core';
+import { buildMobileRuleBasedInsights } from '@/features/insights/mobile-insight-engine';
 import {
   loadDailyCheckIn,
   loadMealLog,
@@ -30,6 +31,7 @@ const colors = {
 type PatternState = 'error' | 'loading' | 'ready';
 type PatternData = {
   checkIns: DailyCheckInRecord[];
+  insights: Insight[];
   meal: MealLogRecord | null;
   recovery: RecoveryLogRecord | null;
   todayCheckIn: DailyCheckInRecord | null;
@@ -109,6 +111,7 @@ export function MobileInsightsScreen() {
           ) : (
             <>
               <TodaySnapshot data={data} />
+              <LocalInsights insights={data?.insights ?? []} />
               <WeeklyRhythm checkIns={recentCheckIns} />
               <SymptomPattern counts={symptomCounts} hasHistory={data?.checkIns.length ?? 0} />
               <RecoverySummary recovery={data?.recovery ?? null} />
@@ -128,15 +131,16 @@ export function MobileInsightsScreen() {
 }
 
 async function getPatternData(): Promise<PatternData> {
-  const [todayCheckIn, meal, recovery, checkIns, workout] = await Promise.all([
+  const [todayCheckIn, meal, recovery, checkIns, workout, insights] = await Promise.all([
     loadDailyCheckIn({ date: CHECK_IN_DATE, userId: USER_ID }),
     loadMealLog({ date: CHECK_IN_DATE, userId: USER_ID }),
     loadRecoveryLog({ date: CHECK_IN_DATE, userId: USER_ID }),
     loadRecentDailyCheckIns({ limit: 90, userId: USER_ID }),
     loadWorkoutLog({ date: CHECK_IN_DATE, userId: USER_ID }),
+    buildMobileRuleBasedInsights(USER_ID),
   ]);
 
-  return { checkIns, meal, recovery, todayCheckIn, workout };
+  return { checkIns, insights, meal, recovery, todayCheckIn, workout };
 }
 
 function TodaySnapshot({ data }: { data: PatternData | null }) {
@@ -152,6 +156,28 @@ function TodaySnapshot({ data }: { data: PatternData | null }) {
         <SnapshotItem label="Food" value={meal} />
         <SnapshotItem label="Movement" value={workout} />
       </View>
+    </View>
+  );
+}
+
+function LocalInsights({ insights }: { insights: Insight[] }) {
+  return (
+    <View style={styles.sectionCard}>
+      <Text style={styles.sectionEyebrow}>INSIGHTS FROM YOUR LOGS</Text>
+      <Text style={styles.sectionTitle}>Small patterns worth noticing</Text>
+      {insights.length ? (
+        <View style={styles.insightList}>
+          {insights.slice(0, 2).map((insight) => (
+            <View key={insight.id} style={styles.insightCard}>
+              <Text style={styles.insightTitle}>{insight.title}</Text>
+              <Text style={styles.insightText}>{insight.message}</Text>
+              <Text style={styles.insightSources}>Based on {insight.sources.map(formatSource).join(', ')}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <EmptyState text="Keep logging for a few days. Insights appear only when there is enough history for a meaningful pattern." />
+      )}
     </View>
   );
 }
@@ -299,6 +325,19 @@ function phaseColor(phase: CyclePhase) {
   return phaseColors[phase];
 }
 
+function formatSource(source: Insight['sources'][number]) {
+  const labels: Record<Insight['sources'][number], string> = {
+    cycle: 'cycle',
+    daily_check_in: 'check-ins',
+    meals: 'food logs',
+    recovery: 'recovery logs',
+    symptoms: 'symptom logs',
+    workouts: 'workout logs',
+  };
+
+  return labels[source];
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   safeArea: { flex: 1 },
@@ -317,6 +356,11 @@ const styles = StyleSheet.create({
   snapshotValue: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 },
   sectionCard: { backgroundColor: '#FFFFFF', borderColor: colors.stone, borderRadius: 20, borderWidth: 1, gap: 8, padding: 20 },
   sectionTitle: { color: colors.text, fontSize: 19, fontWeight: '700' },
+  insightList: { gap: 10, marginTop: 9 },
+  insightCard: { backgroundColor: colors.cream, borderRadius: 14, gap: 6, padding: 14 },
+  insightTitle: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 20 },
+  insightText: { color: colors.secondaryText, fontSize: 12, lineHeight: 18 },
+  insightSources: { color: '#497353', fontSize: 11, fontWeight: '700', marginTop: 2 },
   chart: { alignItems: 'flex-end', flexDirection: 'row', gap: 8, height: 168, marginTop: 10 },
   chartColumn: { alignItems: 'center', flex: 1, gap: 6, height: '100%', justifyContent: 'flex-end' },
   barTrack: { backgroundColor: colors.cream, borderRadius: 8, flex: 1, justifyContent: 'flex-end', maxWidth: 26, overflow: 'hidden', width: '100%' },

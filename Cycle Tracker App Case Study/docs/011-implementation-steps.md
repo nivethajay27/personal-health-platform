@@ -270,3 +270,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Added a daily snapshot, 7-day energy and sleep rhythm, symptom counts by phase, and recovery readiness.
 - Added useful empty states until the user has enough local history.
 - Reason: saved data becomes understandable before advanced insight rules are added.
+
+## Step 39: Add Mobile Rule-Based Insights
+
+- Reused the shared rule engine with local mobile check-ins, food, workouts, recovery, and symptoms.
+- Generated insights only on-device and only after enough history is available.
+- Added source labels so each observation explains which logs informed it.
+- Reason: the app can surface patterns without cloud AI, medical claims, or opaque recommendations.

@@ -224,6 +224,30 @@ export async function loadMealLog({
   return row ? toMealLogRecord(row) : null;
 }
 
+export async function loadAllMealLogs({ userId }: { userId: string }) {
+  const database = await getDatabase();
+  const rows = await database.getAllAsync<MealLogRow>(
+    `SELECT
+      user_id AS userId,
+      date,
+      meal_type AS mealType,
+      name,
+      cycle_phase AS cyclePhase,
+      protein_estimate AS proteinEstimate,
+      fiber_estimate AS fiberEstimate,
+      hydration_estimate AS hydrationEstimate,
+      cravings_present AS cravingsPresent,
+      nutrient_focus AS nutrientFocus,
+      notes,
+      updated_at AS updatedAt
+    FROM meal_logs
+    WHERE user_id = ?`,
+    userId,
+  );
+
+  return rows.map(toMealLogRecord);
+}
+
 export async function saveMealLog({
   cravingsPresent,
   cyclePhase,
@@ -297,6 +321,27 @@ export async function loadWorkoutLog({
   );
 }
 
+export async function loadAllWorkoutLogs({ userId }: { userId: string }) {
+  const database = await getDatabase();
+
+  return database.getAllAsync<WorkoutLogRecord>(
+    `SELECT
+      user_id AS userId,
+      date,
+      type,
+      duration_minutes AS durationMinutes,
+      intensity,
+      perceived_effort AS perceivedEffort,
+      cycle_phase AS cyclePhase,
+      recovery_afterward AS recoveryAfterward,
+      notes,
+      updated_at AS updatedAt
+    FROM workout_logs
+    WHERE user_id = ?`,
+    userId,
+  );
+}
+
 export async function saveWorkoutLog({
   cyclePhase,
   date,
@@ -361,6 +406,28 @@ export async function loadRecoveryLog({
     WHERE user_id = ? AND date = ?`,
     userId,
     date,
+  );
+}
+
+export async function loadAllRecoveryLogs({ userId }: { userId: string }) {
+  const database = await getDatabase();
+
+  return database.getAllAsync<RecoveryLogRecord>(
+    `SELECT
+      user_id AS userId,
+      date,
+      sleep_hours AS sleepHours,
+      sleep_quality AS sleepQuality,
+      hydration_level AS hydrationLevel,
+      fatigue_level AS fatigueLevel,
+      stress_level AS stressLevel,
+      soreness_level AS sorenessLevel,
+      readiness_score AS readinessScore,
+      notes,
+      updated_at AS updatedAt
+    FROM recovery_logs
+    WHERE user_id = ?`,
+    userId,
   );
 }
 
