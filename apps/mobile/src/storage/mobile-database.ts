@@ -38,6 +38,7 @@ const nutrientFocuses = new Set<NutrientFocus>([
 
 export type DailyCheckInRecord = {
   cravings: CravingType[];
+  cyclePhase: CyclePhase;
   date: string;
   energyLevel: IntensityLevel;
   mood: Mood;
@@ -115,6 +116,7 @@ export async function loadDailyCheckIn({
       user_id AS userId,
       date,
       energy_level AS energyLevel,
+      cycle_phase AS cyclePhase,
       mood,
       sleep_hours AS sleepHours,
       sleep_quality AS sleepQuality,
@@ -135,6 +137,7 @@ export async function loadDailyCheckIn({
 
 export async function saveDailyCheckIn({
   cravings,
+  cyclePhase,
   date,
   energyLevel,
   mood,
@@ -154,6 +157,7 @@ export async function saveDailyCheckIn({
       user_id,
       date,
       energy_level,
+      cycle_phase,
       mood,
       sleep_hours,
       sleep_quality,
@@ -163,9 +167,10 @@ export async function saveDailyCheckIn({
       symptoms,
       notes,
       updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(user_id, date) DO UPDATE SET
       energy_level = excluded.energy_level,
+      cycle_phase = excluded.cycle_phase,
       mood = excluded.mood,
       sleep_hours = excluded.sleep_hours,
       sleep_quality = excluded.sleep_quality,
@@ -178,6 +183,7 @@ export async function saveDailyCheckIn({
     userId,
     date,
     energyLevel,
+    cyclePhase,
     mood,
     sleepHours,
     sleepQuality,
@@ -411,6 +417,7 @@ async function getDatabase() {
           user_id TEXT NOT NULL,
           date TEXT NOT NULL,
           energy_level INTEGER NOT NULL CHECK (energy_level BETWEEN 1 AND 5),
+          cycle_phase TEXT NOT NULL DEFAULT 'luteal',
           mood TEXT NOT NULL DEFAULT 'calm',
           sleep_hours REAL,
           sleep_quality INTEGER CHECK (sleep_quality BETWEEN 1 AND 5),
@@ -491,6 +498,7 @@ async function migrateDailyCheckIns(database: SQLite.SQLiteDatabase) {
   const columns = await database.getAllAsync<{ name: string }>('PRAGMA table_info(daily_check_ins)');
   const columnNames = new Set(columns.map((column) => column.name));
   const migrations = [
+    ['cycle_phase', "ALTER TABLE daily_check_ins ADD COLUMN cycle_phase TEXT NOT NULL DEFAULT 'luteal'"],
     ['mood', "ALTER TABLE daily_check_ins ADD COLUMN mood TEXT NOT NULL DEFAULT 'calm'"],
     ['sleep_hours', 'ALTER TABLE daily_check_ins ADD COLUMN sleep_hours REAL'],
     ['sleep_quality', 'ALTER TABLE daily_check_ins ADD COLUMN sleep_quality INTEGER'],
@@ -506,6 +514,40 @@ async function migrateDailyCheckIns(database: SQLite.SQLiteDatabase) {
       await database.execAsync(statement);
     }
   }
+}
+
+export async function loadRecentDailyCheckIns({
+  limit = 7,
+  userId,
+}: {
+  limit?: number;
+  userId: string;
+}) {
+  const database = await getDatabase();
+  const rows = await database.getAllAsync<DailyCheckInRow>(
+    `SELECT
+      user_id AS userId,
+      date,
+      energy_level AS energyLevel,
+      cycle_phase AS cyclePhase,
+      mood,
+      sleep_hours AS sleepHours,
+      sleep_quality AS sleepQuality,
+      cravings,
+      stress_level AS stressLevel,
+      soreness_level AS sorenessLevel,
+      symptoms,
+      notes,
+      updated_at AS updatedAt
+    FROM daily_check_ins
+    WHERE user_id = ?
+    ORDER BY date DESC
+    LIMIT ?`,
+    userId,
+    limit,
+  );
+
+  return rows.map(toDailyCheckInRecord);
 }
 
 function toDailyCheckInRecord(row: DailyCheckInRow): DailyCheckInRecord {

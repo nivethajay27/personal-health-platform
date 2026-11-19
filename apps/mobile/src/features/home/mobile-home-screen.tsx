@@ -30,7 +30,7 @@ const colors = {
   rose: '#D97B87',
 };
 
-type CheckInDraft = Omit<DailyCheckInRecord, 'date' | 'updatedAt' | 'userId'>;
+type CheckInDraft = Omit<DailyCheckInRecord, 'cyclePhase' | 'date' | 'updatedAt' | 'userId'>;
 type StorageState = 'error' | 'loading' | 'ready' | 'saving';
 
 const demoCycle = {
@@ -166,6 +166,7 @@ export function MobileHomeScreen() {
       await saveDailyCheckIn({
         ...checkIn,
         cravings: checkIn.cravings.length ? checkIn.cravings : ['none'],
+        cyclePhase: cycleSummary.effectivePhase,
         date: CHECK_IN_DATE,
         userId: USER_ID,
       });
@@ -506,16 +507,11 @@ function MetricCard({ detail, label, value }: { detail: string; label: string; v
 }
 
 function toDraft(savedCheckIn: DailyCheckInRecord): CheckInDraft {
+  const { cyclePhase: _cyclePhase, date: _date, updatedAt: _updatedAt, userId: _userId, ...draft } = savedCheckIn;
+
   return {
-    cravings: savedCheckIn.cravings.filter((craving) => craving !== 'none'),
-    energyLevel: savedCheckIn.energyLevel,
-    mood: savedCheckIn.mood,
-    notes: savedCheckIn.notes,
-    sleepHours: savedCheckIn.sleepHours,
-    sleepQuality: savedCheckIn.sleepQuality,
-    sorenessLevel: savedCheckIn.sorenessLevel,
-    stressLevel: savedCheckIn.stressLevel,
-    symptoms: savedCheckIn.symptoms,
+    ...draft,
+    cravings: draft.cravings.filter((craving) => craving !== 'none'),
   };
 }
 

@@ -263,3 +263,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Saved one local entry for each area and day, including the estimated cycle phase where relevant.
 - Kept food logging focused on nourishment signals rather than calories or dieting.
 - Reason: daily context now connects feelings with food, movement, and recovery patterns.
+
+## Step 38: Build Mobile Patterns Screen
+
+- Replaced starter insights with local SQLite-backed pattern summaries.
+- Added a daily snapshot, 7-day energy and sleep rhythm, symptom counts by phase, and recovery readiness.
+- Added useful empty states until the user has enough local history.
+- Reason: saved data becomes understandable before advanced insight rules are added.
