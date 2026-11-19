@@ -249,3 +249,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Home now loads and saves one energy value per user and day on the device.
 - Added loading, saving, saved, and error feedback without cloud sync.
 - Reason: the first mobile interaction now persists while protecting privacy.
+
+## Step 36: Expand Mobile Daily Check-In
+
+- Expanded the saved mobile check-in with mood, sleep, stress, soreness, symptoms, cravings, and notes.
+- Used compact chips, five-point controls, and an optional note instead of a long form.
+- Migrated existing energy-only SQLite records without deleting local data.
+- Reason: richer daily context can now power meaningful pattern insights later.
