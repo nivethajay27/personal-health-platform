@@ -256,3 +256,10 @@ This file tracks the actual build steps in a simple, concise way.
 - Used compact chips, five-point controls, and an optional note instead of a long form.
 - Migrated existing energy-only SQLite records without deleting local data.
 - Reason: richer daily context can now power meaningful pattern insights later.
+
+## Step 37: Add Mobile Food, Workout, And Recovery Logs
+
+- Added lightweight Food, Workout, and Recovery forms inside one Daily logs card.
+- Saved one local entry for each area and day, including the estimated cycle phase where relevant.
+- Kept food logging focused on nourishment signals rather than calories or dieting.
+- Reason: daily context now connects feelings with food, movement, and recovery patterns.

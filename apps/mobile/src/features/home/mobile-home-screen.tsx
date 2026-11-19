@@ -15,6 +15,7 @@ import {
   saveDailyCheckIn,
   type DailyCheckInRecord,
 } from '@/storage/mobile-database';
+import { DailyLogsCard } from '@/features/logging/daily-logs-card';
 
 const colors = {
   background: '#FCFBF8',
@@ -395,6 +396,12 @@ export function MobileHomeScreen() {
               <MetricCard detail="Today" label="Readiness" value="76%" />
             </View>
           )}
+
+          <DailyLogsCard
+            cyclePhase={cycleSummary.effectivePhase}
+            date={CHECK_IN_DATE}
+            userId={USER_ID}
+          />
 
           <View style={styles.focusCard}>
             <View style={styles.focusAccent} />
