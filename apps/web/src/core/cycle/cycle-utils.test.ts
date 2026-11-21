@@ -37,6 +37,16 @@ describe("cycle utilities", () => {
     expect(estimateCyclePhase({ cycleDayNumber: 29 })).toBe("menstrual");
   });
 
+  it("wraps built cycle days after the user's average cycle length", () => {
+    const cycleDay = buildCycleDay({
+      cycle,
+      targetDate: "2026-07-30",
+    });
+
+    expect(cycleDay.cycleDayNumber).toBe(2);
+    expect(cycleDay.estimatedPhase).toBe("menstrual");
+  });
+
   it("uses a manual phase override while preserving the estimated phase", () => {
     const cycleDay = buildCycleDay({
       cycle,

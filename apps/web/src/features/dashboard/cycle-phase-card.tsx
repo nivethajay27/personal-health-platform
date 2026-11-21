@@ -20,6 +20,7 @@ const phaseClasses: Record<CyclePhase, string> = {
 
 type CyclePhaseCardProps = {
   cycleDayNumber: number;
+  cycleLength?: number;
   greeting: string;
   phase: CyclePhase;
   phaseProgress: number;
@@ -29,18 +30,26 @@ type CyclePhaseCardProps = {
 
 export function CyclePhaseCard({
   cycleDayNumber,
+  cycleLength = 28,
   greeting,
   phase,
   phaseProgress,
   predictionConfidence,
   userName,
 }: CyclePhaseCardProps) {
-  const phaseWindow = DEFAULT_PHASE_WINDOWS.find(
+  const phaseWindows = DEFAULT_PHASE_WINDOWS.map((window) => ({
+    ...window,
+    endDay:
+      window.phase === "luteal"
+        ? cycleLength
+        : Math.min(window.endDay, cycleLength),
+  })).filter((window) => window.startDay <= window.endDay);
+  const phaseWindow = phaseWindows.find(
     (window) => window.phase === phase,
   );
-  const dayMarkerPosition = `${Math.min(Math.max((cycleDayNumber / 28) * 100, 0), 100)}%`;
+  const dayMarkerPosition = `${Math.min(Math.max((cycleDayNumber / cycleLength) * 100, 0), 100)}%`;
   const dayMarkerLabelClass =
-    cycleDayNumber >= 26
+    cycleDayNumber >= cycleLength - 2
       ? "right-0 translate-x-0"
       : cycleDayNumber <= 2
         ? "left-0 translate-x-0"
@@ -93,8 +102,15 @@ export function CyclePhaseCard({
               </span>
             </div>
 
-            <div className="grid grid-cols-[5fr_8fr_3fr_12fr] gap-1 overflow-hidden rounded-full bg-warm-cream">
-              {DEFAULT_PHASE_WINDOWS.map((window) => (
+            <div
+              className="grid gap-1 overflow-hidden rounded-full bg-warm-cream"
+              style={{
+                gridTemplateColumns: phaseWindows
+                  .map((window) => `${window.endDay - window.startDay + 1}fr`)
+                  .join(" "),
+              }}
+            >
+              {phaseWindows.map((window) => (
                 <div
                   aria-label={`${phaseLabels[window.phase]} days ${window.startDay}-${window.endDay}`}
                   className={cn(
@@ -109,7 +125,7 @@ export function CyclePhaseCard({
           </div>
 
           <div className="grid gap-3 text-sm text-secondary-text sm:grid-cols-4">
-            {DEFAULT_PHASE_WINDOWS.map((window) => (
+            {phaseWindows.map((window) => (
               <div key={window.phase}>
                 <div
                   className={cn(

@@ -94,6 +94,17 @@ export type RecoveryLogRecord = {
   userId: string;
 };
 
+export type MobileProfile = {
+  averageCycleLength: number;
+  averagePeriodLength: number;
+  displayName: string;
+  irregularCycles: boolean;
+  manualPhaseOverride: CyclePhase | null;
+  periodStartDate: string;
+  updatedAt: string;
+  userId: string;
+};
+
 type DailyCheckInRow = Omit<DailyCheckInRecord, 'cravings' | 'symptoms'> & {
   cravings: string;
   symptoms: string;
@@ -104,7 +115,67 @@ type MealLogRow = Omit<MealLogRecord, 'cravingsPresent' | 'nutrientFocus'> & {
   nutrientFocus: string;
 };
 
+type MobileProfileRow = Omit<MobileProfile, 'irregularCycles'> & {
+  irregularCycles: number;
+};
+
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
+
+export async function loadMobileProfile() {
+  const database = await getDatabase();
+  const profile = await database.getFirstAsync<MobileProfileRow>(
+    `SELECT
+      user_id AS userId,
+      display_name AS displayName,
+      period_start_date AS periodStartDate,
+      average_cycle_length AS averageCycleLength,
+      average_period_length AS averagePeriodLength,
+      irregular_cycles AS irregularCycles,
+      manual_phase_override AS manualPhaseOverride,
+      updated_at AS updatedAt
+    FROM mobile_profile
+    WHERE id = 1`,
+  );
+
+  return profile ? { ...profile, irregularCycles: Boolean(profile.irregularCycles) } : null;
+}
+
+export async function saveMobileProfile({
+  averageCycleLength,
+  averagePeriodLength,
+  displayName,
+  irregularCycles,
+  manualPhaseOverride,
+  periodStartDate,
+  userId,
+}: Omit<MobileProfile, 'updatedAt'>) {
+  const database = await getDatabase();
+  const updatedAt = new Date().toISOString();
+
+  await database.runAsync(
+    `INSERT INTO mobile_profile (
+      id, user_id, display_name, period_start_date, average_cycle_length,
+      average_period_length, irregular_cycles, manual_phase_override, updated_at
+    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET
+      user_id = excluded.user_id,
+      display_name = excluded.display_name,
+      period_start_date = excluded.period_start_date,
+      average_cycle_length = excluded.average_cycle_length,
+      average_period_length = excluded.average_period_length,
+      irregular_cycles = excluded.irregular_cycles,
+      manual_phase_override = excluded.manual_phase_override,
+      updated_at = excluded.updated_at`,
+    userId,
+    displayName.trim(),
+    periodStartDate,
+    averageCycleLength,
+    averagePeriodLength,
+    irregularCycles ? 1 : 0,
+    manualPhaseOverride,
+    updatedAt,
+  );
+}
 
 export async function loadDailyCheckIn({
   date,
@@ -499,6 +570,7 @@ async function getDatabase() {
       `);
       await migrateDailyCheckIns(database);
       await createLogTables(database);
+      await createProfileTable(database);
 
       return database;
     });
@@ -510,6 +582,22 @@ async function getDatabase() {
     databasePromise = null;
     throw error;
   }
+}
+
+async function createProfileTable(database: SQLite.SQLiteDatabase) {
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS mobile_profile (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      user_id TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      period_start_date TEXT NOT NULL,
+      average_cycle_length INTEGER NOT NULL CHECK (average_cycle_length BETWEEN 15 AND 60),
+      average_period_length INTEGER NOT NULL CHECK (average_period_length BETWEEN 1 AND 14),
+      irregular_cycles INTEGER NOT NULL DEFAULT 0,
+      manual_phase_override TEXT,
+      updated_at TEXT NOT NULL
+    );
+  `);
 }
 
 async function createLogTables(database: SQLite.SQLiteDatabase) {

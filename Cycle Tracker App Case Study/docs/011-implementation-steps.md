@@ -277,3 +277,21 @@ This file tracks the actual build steps in a simple, concise way.
 - Generated insights only on-device and only after enough history is available.
 - Added source labels so each observation explains which logs informed it.
 - Reason: the app can surface patterns without cloud AI, medical claims, or opaque recommendations.
+
+## Step 40: Add Mobile Profile Setup
+
+- Added a local setup flow for a name, recent period start, cycle length, period length, and irregular-cycle preference.
+- Stored the profile only in the device database; no account or cloud sync is required.
+- Reason: the app should use a person's own context rather than fixed demo values.
+
+## Step 41: Add Mobile Cycle Controls
+
+- Added a Cycle tab for recording a period start, adjusting cycle details, and overriding the estimated phase.
+- Marked estimates clearly, especially for irregular cycles.
+- Reason: cycle calculations are guidance and users should be able to correct them.
+
+## Step 42: Personalize The Web App
+
+- Replaced the fixed web demo identity with a private browser profile and latest-period setup.
+- Added a quick period-start control and based the dashboard on the saved cycle length and dates.
+- Reason: web and mobile now begin with the user's own context while remaining account-free and local-first.

@@ -114,10 +114,12 @@ export function buildCycleDay({
   targetDate,
   phaseOverride,
 }: BuildCycleDayInput): CycleDay {
-  const cycleDayNumber = estimateCycleDay({
+  const elapsedCycleDays = estimateCycleDay({
     cycleStartDate: cycle.startDate,
     targetDate,
   });
+  const cycleDayNumber =
+    ((elapsedCycleDays - 1) % Math.max(cycle.averageCycleLength, 1)) + 1;
   const estimatedPhase = estimateCyclePhase({
     averageCycleLength: cycle.averageCycleLength,
     cycleDayNumber,

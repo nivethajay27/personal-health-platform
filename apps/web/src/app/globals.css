@@ -75,3 +75,19 @@ h3 {
     sans-serif;
   letter-spacing: 0;
 }
+
+.input-field {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--app-soft-stone);
+  border-radius: 14px;
+  background: var(--app-warm-cream);
+  padding: 0.625rem 0.75rem;
+  color: var(--app-primary-text);
+  font: inherit;
+}
+
+.input-field:focus {
+  outline: 2px solid var(--app-primary);
+  outline-offset: 2px;
+}

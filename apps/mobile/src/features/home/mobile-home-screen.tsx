@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   buildCycleDay,
+  getPhaseWindow,
   getCycleSummary,
   type CravingType,
   type IntensityLevel,
@@ -16,6 +17,8 @@ import {
   type DailyCheckInRecord,
 } from '@/storage/mobile-database';
 import { DailyLogsCard } from '@/features/logging/daily-logs-card';
+import { useMobileProfile } from '@/features/profile/mobile-profile-context';
+import { getLocalDateString } from '@/utils/date';
 
 const colors = {
   background: '#FCFBF8',
@@ -32,22 +35,6 @@ const colors = {
 
 type CheckInDraft = Omit<DailyCheckInRecord, 'cyclePhase' | 'date' | 'updatedAt' | 'userId'>;
 type StorageState = 'error' | 'loading' | 'ready' | 'saving';
-
-const demoCycle = {
-  id: 'mobile_demo_cycle',
-  userId: 'mobile_demo_user',
-  startDate: '2026-06-12',
-  averageCycleLength: 28,
-  averagePeriodLength: 5,
-  createdAt: '2026-06-12T09:00:00.000Z',
-  updatedAt: '2026-07-05T09:00:00.000Z',
-};
-
-const CHECK_IN_DATE = '2026-07-05';
-const USER_ID = 'mobile_demo_user';
-const cycleSummary = getCycleSummary(
-  buildCycleDay({ cycle: demoCycle, targetDate: CHECK_IN_DATE }),
-);
 
 const energyOptions = [
   { label: 'Low', value: 2 },
@@ -130,15 +117,18 @@ function getCheckInMessage({
 }
 
 export function MobileHomeScreen() {
+  const { profile } = useMobileProfile();
   const [checkIn, setCheckIn] = useState<CheckInDraft>(createEmptyDraft);
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [hasSavedCheckIn, setHasSavedCheckIn] = useState(false);
   const [storageState, setStorageState] = useState<StorageState>('loading');
+  const today = getLocalDateString();
 
   useEffect(() => {
+    if (!profile) return;
     let isMounted = true;
 
-    void loadDailyCheckIn({ date: CHECK_IN_DATE, userId: USER_ID })
+    void loadDailyCheckIn({ date: today, userId: profile.userId })
       .then((savedCheckIn) => {
         if (!isMounted) return;
 
@@ -155,7 +145,34 @@ export function MobileHomeScreen() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [profile, today]);
+
+  if (!profile) return null;
+
+  const activeProfile = profile;
+
+  const cycleSummary = getCycleSummary(
+    buildCycleDay({
+      cycle: {
+        averageCycleLength: activeProfile.averageCycleLength,
+        averagePeriodLength: activeProfile.averagePeriodLength,
+        createdAt: activeProfile.updatedAt,
+        id: `cycle-${activeProfile.userId}`,
+        startDate: activeProfile.periodStartDate,
+        updatedAt: activeProfile.updatedAt,
+        userId: activeProfile.userId,
+      },
+      phaseOverride: activeProfile.manualPhaseOverride ?? undefined,
+      targetDate: today,
+    }),
+  );
+  const phaseWindow = getPhaseWindow(cycleSummary.effectivePhase);
+  const phaseDays = phaseWindow
+    ? Array.from(
+        { length: phaseWindow.endDay - phaseWindow.startDay + 1 },
+        (_, index) => phaseWindow.startDay + index,
+      )
+    : [];
 
   async function handleSaveCheckIn() {
     if (storageState === 'saving') return;
@@ -167,8 +184,8 @@ export function MobileHomeScreen() {
         ...checkIn,
         cravings: checkIn.cravings.length ? checkIn.cravings : ['none'],
         cyclePhase: cycleSummary.effectivePhase,
-        date: CHECK_IN_DATE,
-        userId: USER_ID,
+        date: today,
+        userId: activeProfile.userId,
       });
       setHasSavedCheckIn(true);
       setStorageState('ready');
@@ -201,7 +218,7 @@ export function MobileHomeScreen() {
           <View style={styles.header}>
             <View>
               <Text style={styles.eyebrow}>CYCLE COMPANION</Text>
-              <Text style={styles.greeting}>{getGreeting()}, Anaya</Text>
+              <Text style={styles.greeting}>{getGreeting()}, {profile.displayName}</Text>
             </View>
             <View style={styles.privateBadge}>
               <Text style={styles.privateBadgeText}>Private</Text>
@@ -213,26 +230,25 @@ export function MobileHomeScreen() {
               <Text style={styles.phaseLabel}>TODAY&apos;S CYCLE</Text>
               <Text style={styles.phaseTitle}>{formatPhase(cycleSummary.effectivePhase)}</Text>
               <Text style={styles.phaseDescription}>
-                Day {cycleSummary.cycleDayNumber} of your cycle. This phase is an estimate, not a diagnosis.
+                Day {cycleSummary.cycleDayNumber} of your cycle. {profile.irregularCycles ? 'Timing is a flexible estimate.' : 'This phase is an estimate, not a diagnosis.'}
               </Text>
             </View>
             <View style={styles.ring}>
               <View style={styles.ringInner}>
                 <Text style={styles.ringDay}>DAY</Text>
                 <Text style={styles.ringNumber}>{cycleSummary.cycleDayNumber}</Text>
-                <Text style={styles.ringDetail}>of 28</Text>
+                <Text style={styles.ringDetail}>of {profile.averageCycleLength}</Text>
               </View>
             </View>
           </View>
 
           <View style={styles.timeline}>
             <View style={styles.timelineHeader}>
-              <Text style={styles.timelineLabel}>LUTEAL PHASE</Text>
-              <Text style={styles.timelineMeta}>Estimated</Text>
+              <Text style={styles.timelineLabel}>{formatPhase(cycleSummary.effectivePhase).toUpperCase()} PHASE</Text>
+              <Text style={styles.timelineMeta}>{profile.irregularCycles ? 'Likely' : 'Estimated'}</Text>
             </View>
             <View style={styles.timelineDots}>
-              {Array.from({ length: 12 }, (_, index) => {
-                const day = index + 17;
+              {phaseDays.map((day) => {
                 const isCurrentDay = day === cycleSummary.cycleDayNumber;
                 return (
                   <View key={day} style={styles.timelineDay}>
@@ -400,8 +416,8 @@ export function MobileHomeScreen() {
 
           <DailyLogsCard
             cyclePhase={cycleSummary.effectivePhase}
-            date={CHECK_IN_DATE}
-            userId={USER_ID}
+            date={today}
+            userId={activeProfile.userId}
           />
 
           <View style={styles.focusCard}>

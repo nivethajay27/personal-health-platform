@@ -229,7 +229,7 @@ export function PatternVisualizationsCard({
 
       {!hasEnoughLocalData && dataMode === "local" ? (
         <PatternNotice
-          message={`Showing starter baseline with ${localCount} local ${getLocalCountLabel(
+          message={`You have ${localCount} local ${getLocalCountLabel(
             activeView,
           )}. More saved logs will make this view more personal.`}
         />
@@ -585,19 +585,19 @@ function getSymptomSummary(
 }
 
 function getDataModeLabel(dataMode: DataMode) {
-  if (dataMode === "local") return "Local + demo";
-  if (dataMode === "error") return "Starter fallback";
+  if (dataMode === "local") return "Local data";
+  if (dataMode === "error") return "Storage unavailable";
   if (dataMode === "loading") return "Checking data";
 
-  return "Starter data";
+  return "Local data";
 }
 
 function getDataSourceCopy(dataMode: DataMode) {
-  if (dataMode === "local") return "Saved local logs are blended with starter history.";
-  if (dataMode === "error") return "Storage is unavailable, so starter data is shown.";
+  if (dataMode === "local") return "Saved privately in this browser.";
+  if (dataMode === "error") return "Your browser could not load local data.";
   if (dataMode === "loading") return "Checking this browser for saved logs.";
 
-  return "Starter baseline is shown until local logs are saved.";
+  return "Saved privately in this browser.";
 }
 
 function getLocalCountForView(

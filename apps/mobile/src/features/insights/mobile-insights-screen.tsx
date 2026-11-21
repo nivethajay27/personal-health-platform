@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { CyclePhase, Insight } from '@/core';
 import { buildMobileRuleBasedInsights } from '@/features/insights/mobile-insight-engine';
+import { useMobileProfile } from '@/features/profile/mobile-profile-context';
 import {
   loadDailyCheckIn,
   loadMealLog,
@@ -15,6 +16,7 @@ import {
   type RecoveryLogRecord,
   type WorkoutLogRecord,
 } from '@/storage/mobile-database';
+import { getLocalDateString } from '@/utils/date';
 
 const colors = {
   background: '#FCFBF8',
@@ -38,18 +40,20 @@ type PatternData = {
   workout: WorkoutLogRecord | null;
 };
 
-const CHECK_IN_DATE = '2026-07-05';
-const USER_ID = 'mobile_demo_user';
 const phases: CyclePhase[] = ['menstrual', 'follicular', 'ovulatory', 'luteal'];
 
 export function MobileInsightsScreen() {
+  const { profile } = useMobileProfile();
   const [data, setData] = useState<PatternData | null>(null);
   const [state, setState] = useState<PatternState>('loading');
+  const today = getLocalDateString();
+  const userId = profile?.userId;
 
   useEffect(() => {
+    if (!userId) return;
     let isMounted = true;
 
-    void getPatternData()
+    void getPatternData({ date: today, userId })
       .then((patternData) => {
         if (!isMounted) return;
 
@@ -63,11 +67,12 @@ export function MobileInsightsScreen() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [today, userId]);
 
   function refreshPatterns() {
+    if (!userId) return;
     setState('loading');
-    void getPatternData()
+    void getPatternData({ date: today, userId })
       .then((patternData) => {
         setData(patternData);
         setState('ready');
@@ -130,14 +135,14 @@ export function MobileInsightsScreen() {
   );
 }
 
-async function getPatternData(): Promise<PatternData> {
+async function getPatternData({ date, userId }: { date: string; userId: string }): Promise<PatternData> {
   const [todayCheckIn, meal, recovery, checkIns, workout, insights] = await Promise.all([
-    loadDailyCheckIn({ date: CHECK_IN_DATE, userId: USER_ID }),
-    loadMealLog({ date: CHECK_IN_DATE, userId: USER_ID }),
-    loadRecoveryLog({ date: CHECK_IN_DATE, userId: USER_ID }),
-    loadRecentDailyCheckIns({ limit: 90, userId: USER_ID }),
-    loadWorkoutLog({ date: CHECK_IN_DATE, userId: USER_ID }),
-    buildMobileRuleBasedInsights(USER_ID),
+    loadDailyCheckIn({ date, userId }),
+    loadMealLog({ date, userId }),
+    loadRecoveryLog({ date, userId }),
+    loadRecentDailyCheckIns({ limit: 90, userId }),
+    loadWorkoutLog({ date, userId }),
+    buildMobileRuleBasedInsights(userId),
   ]);
 
   return { checkIns, insights, meal, recovery, todayCheckIn, workout };
