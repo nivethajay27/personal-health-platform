@@ -295,3 +295,8 @@ This file tracks the actual build steps in a simple, concise way.
 - Replaced the fixed web demo identity with a private browser profile and latest-period setup.
 - Added a quick period-start control and based the dashboard on the saved cycle length and dates.
 - Reason: web and mobile now begin with the user's own context while remaining account-free and local-first.
+
+## Step 43: Repair Vercel Build
+
+- Added Tailwind's Linux compiler binary as an optional web dependency.
+- Reason: Vercel could then resolve its required native CSS compiler during a Linux build.
